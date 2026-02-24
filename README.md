@@ -122,7 +122,7 @@ PLAYWRIGHT_BASE_URL=http://localhost:5173 npx playwright test
 
 ## Live Deployment URL
 
-_Add your Vercel deployment URL here after running `vercel --prod`._
+Live Deployment URL [https://ui-developer-assignment-shopping-ca.vercel.app/](https://ui-developer-assignment-shopping-ca.vercel.app/)
 
 The app is configured for Vercel out of the box via `vercel.json`:
 
