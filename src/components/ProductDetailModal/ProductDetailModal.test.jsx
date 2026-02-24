@@ -7,7 +7,6 @@ import { server } from '../../../tests/msw-setup.cjs';
 import { productsApi } from '@/features/products/productsApi.js';
 import productsReducer from '@/features/products/productsSlice.js';
 import cartReducer from '@/features/cart/cartSlice.js';
-import { addToCart } from '@/features/cart/cartSlice.js';
 import { MAX_QUANTITY } from '@/constants/index.js';
 import ProductDetailModal from './ProductDetailModal.jsx';
 
@@ -24,9 +23,7 @@ const testProduct = {
 };
 
 function makeStore(products = [testProduct], cartItems = [], productQuantities = {}) {
-  server.use(
-    http.get('https://fakestoreapi.com/products', () => HttpResponse.json(products))
-  );
+  server.use(http.get('https://fakestoreapi.com/products', () => HttpResponse.json(products)));
   return configureStore({
     reducer: {
       [productsApi.reducerPath]: productsApi.reducer,
@@ -36,12 +33,23 @@ function makeStore(products = [testProduct], cartItems = [], productQuantities =
     middleware: (gDM) => gDM().concat(productsApi.middleware),
     preloadedState: {
       cart: { items: cartItems, isOpen: false },
-      products: { activeCategory: 'all', sortBy: 'none', selectedProductId: null, productQuantities },
+      products: {
+        activeCategory: 'all',
+        sortBy: 'none',
+        selectedProductId: null,
+        productQuantities,
+      },
     },
   });
 }
 
-function renderModal(productId, products = [testProduct], onClose = jest.fn(), cartItems = [], productQuantities = {}) {
+function renderModal(
+  productId,
+  products = [testProduct],
+  onClose = jest.fn(),
+  cartItems = [],
+  productQuantities = {}
+) {
   const store = makeStore(products, cartItems, productQuantities);
   return {
     store,
@@ -150,7 +158,13 @@ describe('ProductDetailModal', () => {
   });
 
   it('disables Add to Cart and QuantitySelector when cart already has MAX_QUANTITY', async () => {
-    const maxCartItem = { productId: testProduct.id, title: testProduct.title, image: testProduct.image, price: testProduct.price, quantity: MAX_QUANTITY };
+    const maxCartItem = {
+      productId: testProduct.id,
+      title: testProduct.title,
+      image: testProduct.image,
+      price: testProduct.price,
+      quantity: MAX_QUANTITY,
+    };
     renderModal(testProduct.id, [testProduct], jest.fn(), [maxCartItem]);
     await waitFor(() => expect(screen.getByText('Test Product')).toBeInTheDocument());
     expect(screen.getByRole('button', { name: /add to cart/i })).toBeDisabled();
@@ -158,14 +172,28 @@ describe('ProductDetailModal', () => {
   });
 
   it('shows "Already at max quantity in cart" message when cart is at MAX_QUANTITY', async () => {
-    const maxCartItem = { productId: testProduct.id, title: testProduct.title, image: testProduct.image, price: testProduct.price, quantity: MAX_QUANTITY };
+    const maxCartItem = {
+      productId: testProduct.id,
+      title: testProduct.title,
+      image: testProduct.image,
+      price: testProduct.price,
+      quantity: MAX_QUANTITY,
+    };
     renderModal(testProduct.id, [testProduct], jest.fn(), [maxCartItem]);
-    await waitFor(() => expect(screen.getByText(/already at max quantity in cart/i)).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText(/already at max quantity in cart/i)).toBeInTheDocument()
+    );
   });
 
   it('does not call onClose when Add to Cart is clicked at MAX_QUANTITY', async () => {
     const onClose = jest.fn();
-    const maxCartItem = { productId: testProduct.id, title: testProduct.title, image: testProduct.image, price: testProduct.price, quantity: MAX_QUANTITY };
+    const maxCartItem = {
+      productId: testProduct.id,
+      title: testProduct.title,
+      image: testProduct.image,
+      price: testProduct.price,
+      quantity: MAX_QUANTITY,
+    };
     renderModal(testProduct.id, [testProduct], onClose, [maxCartItem]);
     await waitFor(() => expect(screen.getByText('Test Product')).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: /add to cart/i }));

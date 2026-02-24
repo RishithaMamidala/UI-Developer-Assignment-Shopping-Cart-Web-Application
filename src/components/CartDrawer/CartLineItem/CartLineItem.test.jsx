@@ -8,7 +8,7 @@ const item = {
   productId: 1,
   title: 'Test Product',
   image: 'https://fakestoreapi.com/img/test.jpg',
-  price: 25.00,
+  price: 25.0,
   quantity: 2,
 };
 

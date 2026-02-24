@@ -10,8 +10,20 @@ import CartDrawer from './CartDrawer.jsx';
 expect.extend(toHaveNoViolations);
 
 const cartItems = [
-  { productId: 1, title: 'Product A', image: 'https://fakestoreapi.com/img/a.jpg', price: 10.00, quantity: 2 },
-  { productId: 2, title: 'Product B', image: 'https://fakestoreapi.com/img/b.jpg', price: 20.00, quantity: 1 },
+  {
+    productId: 1,
+    title: 'Product A',
+    image: 'https://fakestoreapi.com/img/a.jpg',
+    price: 10.0,
+    quantity: 2,
+  },
+  {
+    productId: 2,
+    title: 'Product B',
+    image: 'https://fakestoreapi.com/img/b.jpg',
+    price: 20.0,
+    quantity: 1,
+  },
 ];
 
 function makeStore(items = []) {

@@ -78,10 +78,7 @@ export default function ProductCard({ product, onOpenDetail, onAddToCart }) {
       </div>
 
       {/* Add-to-cart area */}
-      <div
-        className="px-4 pb-4 pt-2 space-y-2"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="px-4 pb-4 pt-2 space-y-2" onClick={(e) => e.stopPropagation()}>
         <QuantitySelector
           value={quantity}
           onChange={handleQuantityChange}

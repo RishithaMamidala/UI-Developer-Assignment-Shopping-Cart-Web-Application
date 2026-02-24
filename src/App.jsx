@@ -1,6 +1,12 @@
 import { lazy, Suspense, useState } from 'react';
 import { useGetProductsQuery } from '@/features/products/productsApi.js';
-import { setActiveCategory, setSortBy, setSelectedProduct, clearSelectedProduct, resetFilters } from '@/features/products/productsSlice.js';
+import {
+  setActiveCategory,
+  setSortBy,
+  setSelectedProduct,
+  clearSelectedProduct,
+  resetFilters,
+} from '@/features/products/productsSlice.js';
 import { addToCart, openCart, closeCart } from '@/features/cart/cartSlice.js';
 import { selectCartCount, selectIsCartOpen } from '@/features/cart/cartSelectors.js';
 import { useAppDispatch, useAppSelector } from '@/app/hooks.js';
@@ -13,7 +19,9 @@ import CategoryTabs from '@/components/CategoryTabs/CategoryTabs.jsx';
 import SortSelect from '@/components/SortSelect/SortSelect.jsx';
 
 // Lazy-loaded organisms for US3 and US5
-const ProductDetailModal = lazy(() => import('@/components/ProductDetailModal/ProductDetailModal.jsx'));
+const ProductDetailModal = lazy(
+  () => import('@/components/ProductDetailModal/ProductDetailModal.jsx')
+);
 const CartDrawer = lazy(() => import('@/components/CartDrawer/CartDrawer.jsx'));
 
 /**
@@ -69,10 +77,7 @@ export default function App() {
             activeCategory={activeCategory}
             onChange={(cat) => dispatch(setActiveCategory(cat))}
           />
-          <SortSelect
-            value={sortBy}
-            onChange={(val) => dispatch(setSortBy(val))}
-          />
+          <SortSelect value={sortBy} onChange={(val) => dispatch(setSortBy(val))} />
         </div>
 
         <ProductGrid
@@ -90,14 +95,9 @@ export default function App() {
 
       <Suspense fallback={<Spinner size="lg" />}>
         {selectedProductId != null && (
-          <ProductDetailModal
-            productId={selectedProductId}
-            onClose={handleCloseDetail}
-          />
+          <ProductDetailModal productId={selectedProductId} onClose={handleCloseDetail} />
         )}
-        {isCartOpen && (
-          <CartDrawer onClose={handleCloseCart} />
-        )}
+        {isCartOpen && <CartDrawer onClose={handleCloseCart} />}
       </Suspense>
 
       {toast.visible && (

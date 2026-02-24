@@ -7,7 +7,10 @@
  * @returns {JSX.Element}
  */
 export default function CategoryTabs({ categories, activeCategory, onChange }) {
-  const tabs = [{ label: 'All Categories', value: 'all' }, ...categories.map((c) => ({ label: c, value: c }))];
+  const tabs = [
+    { label: 'All Categories', value: 'all' },
+    ...categories.map((c) => ({ label: c, value: c })),
+  ];
 
   return (
     <ul

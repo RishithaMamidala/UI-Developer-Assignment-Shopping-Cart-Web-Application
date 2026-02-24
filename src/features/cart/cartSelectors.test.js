@@ -30,9 +30,7 @@ describe('cartSelectors', () => {
   });
 
   it('selectCartTotal includes floating-point safety', () => {
-    const items = [
-      { productId: 3, title: 'C', image: 'c.jpg', price: 0.1, quantity: 3 },
-    ];
+    const items = [{ productId: 3, title: 'C', image: 'c.jpg', price: 0.1, quantity: 3 }];
     // 0.1 * 3 = 0.30000000000000004 raw; Math.round guards to 0.30
     expect(selectCartTotal(buildState(items))).toBe(0.3);
   });

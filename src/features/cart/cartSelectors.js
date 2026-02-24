@@ -16,9 +16,8 @@ export const selectCartCount = (state) =>
  * @returns {number} Order total rounded to 2 decimal places
  */
 export const selectCartTotal = (state) =>
-  Math.round(
-    state.cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100
-  ) / 100;
+  Math.round(state.cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100) /
+  100;
 
 /**
  * @param {Object} state

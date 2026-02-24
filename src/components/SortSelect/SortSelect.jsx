@@ -15,7 +15,10 @@ const SORT_OPTIONS = [
 export default function SortSelect({ value, onChange }) {
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="sort-select" className="text-sm font-medium text-text-muted whitespace-nowrap">
+      <label
+        htmlFor="sort-select"
+        className="text-sm font-medium text-text-muted whitespace-nowrap"
+      >
         Sort by
       </label>
       <select

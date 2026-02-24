@@ -26,20 +26,14 @@ describe('ProductSchema', () => {
 
 describe('ProductArraySchema', () => {
   it('filters out product with empty string image', () => {
-    const products = [
-      validProduct,
-      { ...validProduct, id: 2, image: '' },
-    ];
+    const products = [validProduct, { ...validProduct, id: 2, image: '' }];
     const result = ProductArraySchema.parse(products);
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe(1);
   });
 
   it('filters out product with price 0', () => {
-    const products = [
-      validProduct,
-      { ...validProduct, id: 2, price: 0 },
-    ];
+    const products = [validProduct, { ...validProduct, id: 2, price: 0 }];
     const result = ProductArraySchema.parse(products);
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe(1);

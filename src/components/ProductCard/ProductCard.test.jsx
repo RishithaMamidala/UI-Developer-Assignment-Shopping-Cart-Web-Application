@@ -30,7 +30,12 @@ function makeStore(cartItems = [], productQuantities = {}) {
     middleware: (gDM) => gDM().concat(productsApi.middleware),
     preloadedState: {
       cart: { items: cartItems, isOpen: false },
-      products: { activeCategory: 'all', sortBy: 'none', selectedProductId: null, productQuantities },
+      products: {
+        activeCategory: 'all',
+        sortBy: 'none',
+        selectedProductId: null,
+        productQuantities,
+      },
     },
   });
 }
@@ -135,7 +140,12 @@ describe('ProductCard (US4 add-to-cart)', () => {
     fireEvent.click(screen.getByRole('button', { name: /increase quantity/i })); // qty=2
     fireEvent.click(screen.getByRole('button', { name: /Add to Cart/i }));
     expect(handleAddToCart).toHaveBeenCalledWith(
-      { productId: mockProduct.id, title: mockProduct.title, image: mockProduct.image, price: mockProduct.price },
+      {
+        productId: mockProduct.id,
+        title: mockProduct.title,
+        image: mockProduct.image,
+        price: mockProduct.price,
+      },
       2
     );
   });
@@ -153,20 +163,38 @@ describe('ProductCard (US4 add-to-cart)', () => {
   });
 
   it('disables Add to Cart and QuantitySelector when cart is at MAX_QUANTITY', () => {
-    const maxCartItem = { productId: mockProduct.id, title: mockProduct.title, image: mockProduct.image, price: mockProduct.price, quantity: MAX_QUANTITY };
+    const maxCartItem = {
+      productId: mockProduct.id,
+      title: mockProduct.title,
+      image: mockProduct.image,
+      price: mockProduct.price,
+      quantity: MAX_QUANTITY,
+    };
     renderCard({}, [maxCartItem]);
     expect(screen.getByRole('button', { name: /Add to Cart/i })).toBeDisabled();
     expect(screen.getByRole('spinbutton')).toBeDisabled();
   });
 
   it('shows inline "Already at max quantity in cart" message when cart is at MAX_QUANTITY', () => {
-    const maxCartItem = { productId: mockProduct.id, title: mockProduct.title, image: mockProduct.image, price: mockProduct.price, quantity: MAX_QUANTITY };
+    const maxCartItem = {
+      productId: mockProduct.id,
+      title: mockProduct.title,
+      image: mockProduct.image,
+      price: mockProduct.price,
+      quantity: MAX_QUANTITY,
+    };
     renderCard({}, [maxCartItem]);
     expect(screen.getByText(/already at max quantity in cart/i)).toBeInTheDocument();
   });
 
   it('does not call onAddToCart when already at MAX_QUANTITY', () => {
-    const maxCartItem = { productId: mockProduct.id, title: mockProduct.title, image: mockProduct.image, price: mockProduct.price, quantity: MAX_QUANTITY };
+    const maxCartItem = {
+      productId: mockProduct.id,
+      title: mockProduct.title,
+      image: mockProduct.image,
+      price: mockProduct.price,
+      quantity: MAX_QUANTITY,
+    };
     const { handleAddToCart } = renderCard({}, [maxCartItem]);
     fireEvent.click(screen.getByRole('button', { name: /Add to Cart/i }));
     expect(handleAddToCart).not.toHaveBeenCalled();

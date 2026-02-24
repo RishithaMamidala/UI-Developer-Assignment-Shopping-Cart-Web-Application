@@ -6,7 +6,12 @@ import productsReducer, {
   resetFilters,
 } from './productsSlice.js';
 
-const initialState = { activeCategory: 'all', sortBy: 'none', selectedProductId: null, productQuantities: {} };
+const initialState = {
+  activeCategory: 'all',
+  sortBy: 'none',
+  selectedProductId: null,
+  productQuantities: {},
+};
 
 describe('productsSlice', () => {
   it('has correct initial state', () => {

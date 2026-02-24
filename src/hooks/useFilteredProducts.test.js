@@ -52,47 +52,52 @@ function makeWrapper(productsState) {
 }
 
 beforeEach(() => {
-  server.use(
-    http.get('https://fakestoreapi.com/products', () => HttpResponse.json(testProducts))
-  );
+  server.use(http.get('https://fakestoreapi.com/products', () => HttpResponse.json(testProducts)));
 });
 
 describe('useFilteredProducts', () => {
   it('returns all products when activeCategory is "all" and sortBy is "none"', async () => {
-    const { result } = renderHook(
-      () => useFilteredProducts(),
-      { wrapper: makeWrapper({ activeCategory: 'all', sortBy: 'none', selectedProductId: null }) }
-    );
+    const { result } = renderHook(() => useFilteredProducts(), {
+      wrapper: makeWrapper({ activeCategory: 'all', sortBy: 'none', selectedProductId: null }),
+    });
     await waitFor(() => expect(result.current).toHaveLength(3));
   });
 
   it('filters to matching category', async () => {
-    const { result } = renderHook(
-      () => useFilteredProducts(),
-      { wrapper: makeWrapper({ activeCategory: 'electronics', sortBy: 'none', selectedProductId: null }) }
-    );
+    const { result } = renderHook(() => useFilteredProducts(), {
+      wrapper: makeWrapper({
+        activeCategory: 'electronics',
+        sortBy: 'none',
+        selectedProductId: null,
+      }),
+    });
     await waitFor(() => expect(result.current).toHaveLength(2));
     expect(result.current.every((p) => p.category === 'electronics')).toBe(true);
   });
 
   it('returns empty array when no products match category', async () => {
-    const { result } = renderHook(
-      () => useFilteredProducts(),
-      { wrapper: makeWrapper({ activeCategory: 'nonexistent', sortBy: 'none', selectedProductId: null }) }
+    const { result } = renderHook(() => useFilteredProducts(), {
+      wrapper: makeWrapper({
+        activeCategory: 'nonexistent',
+        sortBy: 'none',
+        selectedProductId: null,
+      }),
+    });
+    await waitFor(
+      () => {
+        // Wait for API to finish - products loaded but filtered to none
+        const state = result.current;
+        // After fetch completes, result will be empty array (no match)
+        expect(state).toHaveLength(0);
+      },
+      { timeout: 5000 }
     );
-    await waitFor(() => {
-      // Wait for API to finish - products loaded but filtered to none
-      const state = result.current;
-      // After fetch completes, result will be empty array (no match)
-      expect(state).toHaveLength(0);
-    }, { timeout: 5000 });
   });
 
   it('sorts by price_asc (lowest first)', async () => {
-    const { result } = renderHook(
-      () => useFilteredProducts(),
-      { wrapper: makeWrapper({ activeCategory: 'all', sortBy: 'price_asc', selectedProductId: null }) }
-    );
+    const { result } = renderHook(() => useFilteredProducts(), {
+      wrapper: makeWrapper({ activeCategory: 'all', sortBy: 'price_asc', selectedProductId: null }),
+    });
     await waitFor(() => {
       const prices = result.current.map((p) => p.price);
       expect(prices).toEqual([10, 20, 30]);
@@ -100,10 +105,13 @@ describe('useFilteredProducts', () => {
   });
 
   it('sorts by price_desc (highest first)', async () => {
-    const { result } = renderHook(
-      () => useFilteredProducts(),
-      { wrapper: makeWrapper({ activeCategory: 'all', sortBy: 'price_desc', selectedProductId: null }) }
-    );
+    const { result } = renderHook(() => useFilteredProducts(), {
+      wrapper: makeWrapper({
+        activeCategory: 'all',
+        sortBy: 'price_desc',
+        selectedProductId: null,
+      }),
+    });
     await waitFor(() => {
       const prices = result.current.map((p) => p.price);
       expect(prices).toEqual([30, 20, 10]);
@@ -111,10 +119,13 @@ describe('useFilteredProducts', () => {
   });
 
   it('sorts by rating_desc (highest first)', async () => {
-    const { result } = renderHook(
-      () => useFilteredProducts(),
-      { wrapper: makeWrapper({ activeCategory: 'all', sortBy: 'rating_desc', selectedProductId: null }) }
-    );
+    const { result } = renderHook(() => useFilteredProducts(), {
+      wrapper: makeWrapper({
+        activeCategory: 'all',
+        sortBy: 'rating_desc',
+        selectedProductId: null,
+      }),
+    });
     await waitFor(() => {
       const rates = result.current.map((p) => p.rating.rate);
       expect(rates).toEqual([4.8, 4.5, 3.0]);
@@ -122,10 +133,13 @@ describe('useFilteredProducts', () => {
   });
 
   it('applies combined category filter AND sort simultaneously', async () => {
-    const { result } = renderHook(
-      () => useFilteredProducts(),
-      { wrapper: makeWrapper({ activeCategory: 'electronics', sortBy: 'price_asc', selectedProductId: null }) }
-    );
+    const { result } = renderHook(() => useFilteredProducts(), {
+      wrapper: makeWrapper({
+        activeCategory: 'electronics',
+        sortBy: 'price_asc',
+        selectedProductId: null,
+      }),
+    });
     await waitFor(() => {
       expect(result.current).toHaveLength(2);
       expect(result.current[0].price).toBe(10);

@@ -84,7 +84,9 @@ export default function QuantitySelector({
           min={min}
           max={max}
           onChange={handleChange}
-          onKeyDown={(e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault();
+          }}
           disabled={disabled}
           aria-describedby={outOfRange ? errorId : undefined}
           className="w-14 text-center text-sm border border-border rounded-btn py-1 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"

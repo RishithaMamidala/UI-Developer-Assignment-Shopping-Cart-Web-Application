@@ -44,7 +44,13 @@ const mockProducts = [
 describe('ProductGrid', () => {
   it('renders 8 ProductSkeleton components when loading', () => {
     const { container } = render(
-      <ProductGrid isLoading products={[]} onRetry={jest.fn()} onOpenDetail={jest.fn()} onAddToCart={jest.fn()} />
+      <ProductGrid
+        isLoading
+        products={[]}
+        onRetry={jest.fn()}
+        onOpenDetail={jest.fn()}
+        onAddToCart={jest.fn()}
+      />
     );
     const skeletons = container.querySelectorAll('[aria-hidden="true"]');
     expect(skeletons.length).toBe(8);
@@ -53,7 +59,13 @@ describe('ProductGrid', () => {
   it('renders error message and retry button when isError', () => {
     const onRetry = jest.fn();
     render(
-      <ProductGrid isError products={[]} onRetry={onRetry} onOpenDetail={jest.fn()} onAddToCart={jest.fn()} />
+      <ProductGrid
+        isError
+        products={[]}
+        onRetry={onRetry}
+        onOpenDetail={jest.fn()}
+        onAddToCart={jest.fn()}
+      />
     );
     expect(screen.getByText(/failed|error|unable/i)).toBeInTheDocument();
     const retryBtn = screen.getByRole('button', { name: /Try Again/i });
@@ -96,7 +108,12 @@ describe('ProductGrid', () => {
   it('renders one ProductCard per product', () => {
     render(
       <Provider store={makeStore()}>
-        <ProductGrid products={mockProducts} onRetry={jest.fn()} onOpenDetail={jest.fn()} onAddToCart={jest.fn()} />
+        <ProductGrid
+          products={mockProducts}
+          onRetry={jest.fn()}
+          onOpenDetail={jest.fn()}
+          onAddToCart={jest.fn()}
+        />
       </Provider>
     );
     expect(screen.getByText('Product A')).toBeInTheDocument();
@@ -106,7 +123,12 @@ describe('ProductGrid', () => {
   it('passes axe accessibility audit', async () => {
     const { container } = render(
       <Provider store={makeStore()}>
-        <ProductGrid products={mockProducts} onRetry={jest.fn()} onOpenDetail={jest.fn()} onAddToCart={jest.fn()} />
+        <ProductGrid
+          products={mockProducts}
+          onRetry={jest.fn()}
+          onOpenDetail={jest.fn()}
+          onAddToCart={jest.fn()}
+        />
       </Provider>
     );
     const results = await axe(container);

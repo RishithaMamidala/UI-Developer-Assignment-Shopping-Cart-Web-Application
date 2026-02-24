@@ -20,17 +20,13 @@ describe('Toast', () => {
   });
 
   it('success variant has success styling', () => {
-    const { container } = render(
-      <Toast message="Done" variant="success" onDismiss={jest.fn()} />
-    );
+    const { container } = render(<Toast message="Done" variant="success" onDismiss={jest.fn()} />);
     const toast = container.firstChild;
     expect(toast.className).toMatch(/bg-success/);
   });
 
   it('error variant has error styling', () => {
-    const { container } = render(
-      <Toast message="Failed" variant="error" onDismiss={jest.fn()} />
-    );
+    const { container } = render(<Toast message="Failed" variant="error" onDismiss={jest.fn()} />);
     const toast = container.firstChild;
     expect(toast.className).toMatch(/bg-error/);
   });
