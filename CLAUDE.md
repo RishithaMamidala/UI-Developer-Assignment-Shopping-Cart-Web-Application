@@ -36,7 +36,7 @@ src/
 │   └── cart/          # cartSlice.js, cartSelectors.js
 ├── hooks/             # useFilteredProducts.js
 ├── utils/             # currency.js, validation.js
-└── constants/         # index.js (MAX_QUANTITY=50, OUT_OF_STOCK_IDS, API_TIMEOUT)
+└── constants/         # index.js (MAX_QUANTITY=50, API_TIMEOUT)
 tests/
 └── integration/
 ```
@@ -63,13 +63,11 @@ vercel --prod        # Deploy to Vercel
 - **Imports**: Path alias `@/` maps to `src/` (configured in `jsconfig.json` and `vite.config.js`).
 - **Constants**: All magic numbers/IDs in `src/constants/index.js`.
 - **Currency**: Always use `formatPrice()` from `src/utils/currency.js` — never template literals.
-- **Out-of-stock**: Check `OUT_OF_STOCK_IDS.has(product.id)` — never store this in API response.
 
 ## Key Constraints
 
 - Max cart quantity per product: **50** (`MAX_QUANTITY`)
 - API timeout: **10 000 ms** (enforced by `fetchBaseQuery`)
-- Out-of-stock product IDs: **Set([3, 7])** (simulated — FakeStore has no stock field)
 - Cart persistence: **sessionStorage only** (no localStorage, no cross-session)
 - No text search — category filter tabs + sort-by only
 - No checkout/payment flow — cart review is the final step
