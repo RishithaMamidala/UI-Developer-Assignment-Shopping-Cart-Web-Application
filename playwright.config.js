@@ -7,7 +7,7 @@ const isLocal = baseURL.includes('localhost');
 
 export default defineConfig({
   testDir: './e2e',
-  workers: 1,
+  workers: 2,
   use: {
     baseURL,
     browserName: 'chromium',
