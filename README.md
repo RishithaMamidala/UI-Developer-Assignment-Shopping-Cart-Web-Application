@@ -16,6 +16,7 @@ Live demo: [https://ui-developer-assignment-shopping-ca.vercel.app/](https://ui-
 
 | Category | Package | Version |
 |---|---|---|
+| **Environment** | Node.js | 18.20.8 |
 | **Framework** | React | ^19.2.4 |
 | **Bundler** | Vite | ^6.4.1 |
 | **Styling** | Tailwind CSS | ^3.4.19 |
