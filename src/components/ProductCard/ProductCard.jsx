@@ -41,7 +41,7 @@ export default function ProductCard({ product, onOpenDetail, onAddToCart }) {
     );
     dispatch(setProductQuantity({ productId: product.id, quantity: 1 }));
     setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
+    setTimeout(() => setAdded(false), 800);
   }
 
   function handleCardClick() {
