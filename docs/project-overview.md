@@ -82,7 +82,7 @@ Categories come directly from the product data — there is no hardcoded categor
 
 The project uses Test-Driven Development. A failing test is written before each piece of functionality is implemented. 
 
-Coverage thresholds are enforced by Jest and will fail the CI build if not met:
+Coverage thresholds are enforced by Jest:
 
 - Utilities: 95% statements, 90% branches, 100% functions
 - Hooks and features: 90% statements, 85% branches, 95% functions
@@ -90,21 +90,9 @@ Coverage thresholds are enforced by Jest and will fail the CI build if not met:
 
 MSW v2 handles API mocking. A single shared server is initialized in `jest.setup.cjs` and individual tests override specific handlers with 
 
-Playwright covers two end-to-end flows: browsing the catalogue (skeleton loading, product rendering, no horizontal overflow across three viewports) and adding to cart (quantity selector, cart badge increment, drawer contents, order total). Tests run against `localhost:4173` in CI (the Vite preview server) using a `PLAYWRIGHT_BASE_URL` environment variable.
+Playwright covers two end-to-end flows: browsing the catalogue (skeleton loading, product rendering, no horizontal overflow across three viewports) and adding to cart (quantity selector, cart badge increment, drawer contents, order total). Tests run against `localhost:4173` (the Vite preview server) via a `PLAYWRIGHT_BASE_URL` environment variable.
 
 `redux-persist` in tests requires isolated state. Each test that involves the store uses a unique persist key to prevent state leaking from one test to the next via `sessionStorage`.
-
----
-
-## CI/CD Pipeline
-
-The GitHub Actions pipeline runs six jobs on every push and pull request:
-
-1. **Lint** — ESLint across all source files
-2. **Test** — Jest with coverage enforcement
-3. **Build** — Vite production build; the `dist/` folder is uploaded as an artifact
-4. **Audit** — `npm audit --audit-level=high` to catch high-severity dependency vulnerabilities
-5. **E2E** — Playwright tests against the preview server
 
 ---
 

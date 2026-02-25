@@ -142,8 +142,6 @@ release gate, not a post-launch backlog item.
   `aria-atomic`) where screen reader users would otherwise miss updates.
 - Every form input MUST have a programmatically associated `<label>` element
   (via `for`/`id` pairing or `aria-labelledby`).
-- Automated accessibility audits (axe-core, Lighthouse) MUST pass with zero
-  critical or serious violations in CI on every PR.
 - Reading and keyboard navigation order MUST follow logical DOM order.
 
 **Rationale**: Accessibility failures exclude users, create legal liability,
@@ -158,7 +156,7 @@ No production implementation code MAY be written before a failing test exists.
 - **Red** — Write a failing test that precisely defines the expected behavior.
 - **Green** — Write the minimal implementation to make the test pass.
 - **Refactor** — Improve structure and clarity without breaking tests.
-- Minimum CI-enforced coverage thresholds:
+- Minimum enforced coverage thresholds:
 
   | Layer              | Statement | Branch | Function |
   |--------------------|-----------|--------|----------|
@@ -170,8 +168,6 @@ No production implementation code MAY be written before a failing test exists.
   states for every feature.
 - Integration tests MUST cover the end-to-end user journey for every P1
   user story.
-- PRs that decrease any layer's coverage below its threshold MUST be rejected
-  by CI; no manual overrides are permitted.
 - Test file naming convention: `[ComponentName].test.tsx` co-located with
   source; E2E tests live in `e2e/`.
 
@@ -194,7 +190,6 @@ conditions at every production deployment candidate.
   MUST use lazy loading (`React.lazy` / dynamic import).
 - Every third-party script addition MUST be accompanied by a documented
   performance budget impact assessment before approval.
-- Lighthouse performance score MUST remain ≥ 90 in CI on every PR.
 
 **Rationale**: Performance is a user experience feature. Slow UIs reduce
 conversion, retention, and accessibility for users on low-end devices or
@@ -262,8 +257,6 @@ Security controls are non-negotiable and cannot be deferred.
   in `localStorage` or `sessionStorage` is forbidden.
 - Content Security Policy (CSP) headers MUST be configured for all production
   deployments.
-- Third-party dependencies MUST be audited via `npm audit` (or equivalent)
-  in CI; unresolved critical or high CVEs block deployment.
 - Sensitive data (PII, tokens, secrets) MUST NOT appear in browser console
   logs, URL query strings, or error reporting payloads.
 - CSRF protection MUST be verified for all state-mutating API operations.
@@ -278,8 +271,6 @@ Code is read far more often than it is written. Every change MUST leave the
 codebase easier to understand than it found it.
 
 **Rules**:
-- ESLint and Prettier configurations MUST be enforced in CI; merged code MUST
-  have zero lint warnings.
 - Functions MUST have a single, clear responsibility; cyclomatic complexity
   > 10 triggers mandatory decomposition before the PR can merge.
 - Magic numbers and strings MUST be replaced with named constants.
@@ -324,7 +315,6 @@ shipped feature:
 | Unit               | Individual component / hook          | Vitest / Jest + Testing Library |
 | Integration        | User journey across components       | Testing Library + MSW         |
 | E2E                | Critical paths in production-like env| Playwright / Cypress          |
-| Accessibility      | axe-core automated audit             | jest-axe / Lighthouse CI      |
 | Visual Regression  | Per-breakpoint screenshot diff       | Chromatic / Percy             |
 
 All test types MUST be green before a feature branch is eligible for merge

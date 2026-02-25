@@ -281,7 +281,7 @@ npm run test:coverage
 # → coverage/ directory + console table
 ```
 
-### Coverage Thresholds (CI gates)
+### Coverage Thresholds
 
 | Layer | Files | Statement | Branch | Function |
 |-------|-------|-----------|--------|----------|

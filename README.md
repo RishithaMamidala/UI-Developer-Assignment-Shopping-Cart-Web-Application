@@ -101,12 +101,6 @@ E2E tests cover two flows:
 - **Browse catalogue** — skeleton loading, product rendering, no horizontal overflow at mobile/tablet/desktop viewports
 - **Add to cart** — quantity selector, cart badge increment, drawer contents, order total
 
-To run against a custom URL (e.g. in CI):
-
-```bash
-PLAYWRIGHT_BASE_URL=http://localhost:5173 npx playwright test
-```
-
 ---
 
 ## Live Deployment URL

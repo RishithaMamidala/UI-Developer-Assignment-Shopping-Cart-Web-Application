@@ -79,7 +79,7 @@ See `.specify/memory/constitution.md` for full governance rules.
 
 Key non-negotiables:
 - **WCAG 2.1 AA** — `jest-axe` in every component test; zero critical/serious violations
-- **TDD** — failing test before implementation; coverage thresholds enforced in CI
+- **TDD** — failing test before implementation; coverage thresholds enforced by Jest
 - **No raw useEffect fetch** — use RTK Query for all API calls
 - **No dangerouslySetInnerHTML** — React JSX escapes by default
 

@@ -40,7 +40,7 @@ Greenfield frontend-only SPA: a modern shopping cart built with React 18 + Vite 
 | II | Design System Conformance | ✅ PASS | All tokens in `tailwind.config.js` (`colors`, `spacing`, `fontFamily`, `borderRadius`); no hard-coded values |
 | III | Responsive-First Development | ✅ PASS | Tailwind mobile-first (`sm:` / `md:` / `lg:`); touch targets ≥ 44px via Tailwind `min-h-11` |
 | IV | WCAG 2.1 AA (NON-NEGOTIABLE) | ✅ PASS | `jest-axe` in every component test; ARIA live regions for cart badge + toast; all images have `alt` |
-| V | TDD (NON-NEGOTIABLE) | ✅ PASS | Jest + RTL; CI coverage gates: Components 85/80/90, Hooks/Services 90/85/95, Utils 95/90/100 |
+| V | TDD (NON-NEGOTIABLE) | ✅ PASS | Jest + RTL; coverage gates: Components 85/80/90, Hooks/Services 90/85/95, Utils 95/90/100 |
 | VI | Performance Optimization | ✅ PASS | Vite code splitting; `React.lazy` for drawer + modal; skeleton screens prevent CLS; RTK Query caching |
 | VII | State Management Discipline | ✅ PASS | Cart → Redux Toolkit slice; Products → RTK Query; filter/sort UI → `productsSlice` |
 | VIII | API Integration & Error Handling | ✅ PASS | RTK Query: loading/success/error states; 10s timeout (FR-036); plain JS validation in `transformResponse`; automatic retry via RTK Query `retry` wrapper (maxRetries: 3) on transient GET failures — see T023 |
@@ -250,5 +250,4 @@ After `/speckit.tasks` + `/speckit.implement`:
 5. Select category tab → grid updates, 0 network requests (SC-010)
 6. Enter qty 51 → inline validation blocks add (SC-009)
 7. `npm test -- --coverage` → all layer thresholds pass
-8. Lighthouse → Performance ≥ 90, Accessibility 100
-9. `vercel --prod` → SPA loads and routes correctly
+8. `vercel --prod` → SPA loads and routes correctly
