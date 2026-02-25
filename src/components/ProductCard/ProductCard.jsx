@@ -71,6 +71,7 @@ export default function ProductCard({ product, onOpenDetail, onAddToCart }) {
             src={product.image}
             alt={product.title}
             className="w-full h-56 object-contain p-4"
+            loading="lazy"
             onError={(e) => {
               e.currentTarget.src = PLACEHOLDER_SRC;
             }}

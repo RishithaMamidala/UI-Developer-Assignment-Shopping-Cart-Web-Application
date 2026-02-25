@@ -100,10 +100,10 @@ describe('ProductCard (added flash state)', () => {
     expect(screen.getByRole('button', { name: /✓ added!/i })).toBeInTheDocument();
   });
 
-  it('reverts to "Add to Cart" after 1.5 s', () => {
+  it('reverts to "Add to Cart" after 800 ms', () => {
     renderCard();
     fireEvent.click(screen.getByRole('button', { name: /add to cart/i }));
-    act(() => jest.advanceTimersByTime(1500));
+    act(() => jest.advanceTimersByTime(800));
     expect(screen.getByRole('button', { name: /add to cart/i })).toBeInTheDocument();
   });
 });
@@ -142,7 +142,7 @@ describe('ProductCard (US4 add-to-cart)', () => {
     expect(img.src).toContain('data:image/svg+xml');
   });
 
-  it('Add to Cart button is present and enabled for in-stock product', () => {
+  it('Add to Cart button is present and enabled by default', () => {
     renderCard();
     const btn = screen.getByRole('button', { name: /Add to Cart/i });
     expect(btn).not.toBeDisabled();
@@ -230,6 +230,13 @@ describe('ProductCard (US4 add-to-cart)', () => {
   it('does not call onAddToCart when quantity input shows an invalid value (0)', () => {
     const { handleAddToCart } = renderCard();
     fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '0' } });
+    fireEvent.click(screen.getByRole('button', { name: /Add to Cart/i }));
+    expect(handleAddToCart).not.toHaveBeenCalled();
+  });
+
+  it('does not call onAddToCart when quantity input exceeds MAX_QUANTITY (typed)', () => {
+    const { handleAddToCart } = renderCard();
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: String(MAX_QUANTITY + 1) } });
     fireEvent.click(screen.getByRole('button', { name: /Add to Cart/i }));
     expect(handleAddToCart).not.toHaveBeenCalled();
   });

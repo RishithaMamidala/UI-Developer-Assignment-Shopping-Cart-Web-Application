@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import CartLineItem from './CartLineItem.jsx';
+import { MAX_QUANTITY } from '@/constants/index.js';
 
 expect.extend(toHaveNoViolations);
 
@@ -58,6 +59,25 @@ describe('CartLineItem', () => {
     expect(onQuantityChange).toHaveBeenCalledWith(3);
   });
 
+  it('typing 0 and blurring reverts spinbutton to previous cart quantity', () => {
+    const onQuantityChange = jest.fn();
+    render(<CartLineItem item={item} onRemove={jest.fn()} onQuantityChange={onQuantityChange} />);
+    const input = screen.getByRole('spinbutton');
+    fireEvent.change(input, { target: { value: '0' } });
+    fireEvent.blur(input);
+    expect(input).toHaveValue(item.quantity);
+    expect(onQuantityChange).toHaveBeenCalledWith(item.quantity);
+  });
+
+  it('typing above MAX_QUANTITY and blurring reverts spinbutton to previous cart quantity', () => {
+    const onQuantityChange = jest.fn();
+    render(<CartLineItem item={item} onRemove={jest.fn()} onQuantityChange={onQuantityChange} />);
+    const input = screen.getByRole('spinbutton');
+    fireEvent.change(input, { target: { value: String(MAX_QUANTITY + 1) } });
+    fireEvent.blur(input);
+    expect(input).toHaveValue(item.quantity);
+    expect(onQuantityChange).toHaveBeenCalledWith(item.quantity);
+  });
 
   it('passes axe accessibility audit', async () => {
     const { container } = render(

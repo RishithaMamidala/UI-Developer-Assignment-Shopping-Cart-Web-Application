@@ -4,6 +4,8 @@ import productsReducer, {
   setSelectedProduct,
   clearSelectedProduct,
   resetFilters,
+  setProductQuantity,
+  selectProductQuantity,
 } from './productsSlice.js';
 
 const initialState = {
@@ -45,5 +47,25 @@ describe('productsSlice', () => {
     const reset = productsReducer(state, resetFilters());
     expect(reset.activeCategory).toBe('all');
     expect(reset.sortBy).toBe('none');
+  });
+
+  it('setProductQuantity stores quantity for a given productId', () => {
+    const state = productsReducer(initialState, setProductQuantity({ productId: 5, quantity: 3 }));
+    expect(state.productQuantities[5]).toBe(3);
+  });
+
+  it('setProductQuantity overwrites a previously stored quantity', () => {
+    let state = productsReducer(initialState, setProductQuantity({ productId: 5, quantity: 2 }));
+    state = productsReducer(state, setProductQuantity({ productId: 5, quantity: 7 }));
+    expect(state.productQuantities[5]).toBe(7);
+  });
+
+  it('selectProductQuantity returns stored quantity when set', () => {
+    const state = productsReducer(initialState, setProductQuantity({ productId: 5, quantity: 4 }));
+    expect(selectProductQuantity({ products: state }, 5)).toBe(4);
+  });
+
+  it('selectProductQuantity returns default 1 when productId not in map', () => {
+    expect(selectProductQuantity({ products: initialState }, 999)).toBe(1);
   });
 });

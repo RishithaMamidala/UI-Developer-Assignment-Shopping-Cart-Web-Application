@@ -4,6 +4,12 @@ A single-page shopping cart application built with React. Browse a product catal
 
 Live demo: [https://ui-developer-assignment-shopping-ca.vercel.app/](https://ui-developer-assignment-shopping-ca.vercel.app/)
 
+<p align="center">
+  <img src="Images/Kibo store front.png" width="32%" alt="Store front" />
+  <img src="Images/Kibo product details.png" width="32%" alt="Product details" />
+  <img src="Images/Kibo cart.png" width="32%" alt="Cart" />
+</p>
+
 ---
 
 ## Framework & Library Versions
@@ -23,6 +29,32 @@ Live demo: [https://ui-developer-assignment-shopping-ca.vercel.app/](https://ui-
 | **Testing** | jest-axe | ^10.0.0 |
 | **Testing** | MSW (Mock Service Worker) | ^2.12.10 |
 | **E2E** | Playwright | ^1.58.2 |
+
+---
+
+## Project Structure
+
+```
+src/
+├── app/               # Redux store & typed hooks
+├── components/
+│   ├── ui/            # Atoms (Button, Badge, StarRating, Spinner…)
+│   │   └── *.test.jsx # Unit tests co-located with each component
+│   ├── ProductCard/   # Product listing card + ProductCard.test.jsx
+│   ├── CategoryTabs/  # Category filter tabs + CategoryTabs.test.jsx
+│   ├── SortSelect/    # Sort dropdown + SortSelect.test.jsx
+│   ├── ProductGrid/   # Product grid + ProductGrid.test.jsx
+│   ├── Header/        # Site header + Header.test.jsx
+│   ├── ProductDetailModal/  # Product detail (lazy) + test
+│   └── CartDrawer/    # Cart drawer (lazy) + CartLineItem + tests
+├── features/
+│   ├── products/      # RTK Query API + slice + tests
+│   └── cart/          # Cart slice + selectors + tests
+├── hooks/             # useFilteredProducts + test
+└── utils/             # currency, validation + tests
+tests/integration/     # Cross-component integration tests
+e2e/                   # Playwright end-to-end tests
+```
 
 ---
 
