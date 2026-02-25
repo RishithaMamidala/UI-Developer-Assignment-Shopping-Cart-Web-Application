@@ -109,7 +109,7 @@ export default function ProductDetailModal({ productId, onClose }) {
 
             {/* Details */}
             <div className="flex-1 flex flex-col gap-4">
-              <div>
+              <div className="pr-10">
                 <h1 id={titleId} className="text-xl font-bold text-text leading-snug">
                   {product.title}
                 </h1>
