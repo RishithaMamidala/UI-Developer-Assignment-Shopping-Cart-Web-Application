@@ -1,10 +1,13 @@
 import { defineConfig } from '@playwright/test';
 
-// In CI the preview server runs on port 4173; locally the dev server uses 5173.
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:5173';
+// Defaults to the live Vercel deployment.
+// Override for local: PLAYWRIGHT_BASE_URL=http://localhost:5173 npx playwright test
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'https://ui-developer-assignment-shopping-ca.vercel.app';
+const isLocal = baseURL.includes('localhost');
 
 export default defineConfig({
   testDir: './e2e',
+  workers: 1,
   use: {
     baseURL,
     browserName: 'chromium',
@@ -12,12 +15,13 @@ export default defineConfig({
       slowMo: 1000,  // 1000ms delay between each action
     },
   },
-  webServer: {
-    // Only start the dev server automatically when running locally.
-    // In CI, the server is started manually before `npx playwright test`.
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: true,
-    timeout: 30000,
-  },
+  // Only spin up the dev server when running against localhost
+  ...(isLocal && {
+    webServer: {
+      command: 'npm run dev',
+      url: 'http://localhost:5173',
+      reuseExistingServer: true,
+      timeout: 30000,
+    },
+  }),
 });
