@@ -1,272 +1,139 @@
-# Kibo Store - Shopping Cart Application  
-## Developer Log
+# AI Workflow Journal — Kibo Shopping Cart App
+
+Documenting significant AI interactions during the development of `001-shopping-cart-app`:
+how I constructed prompts, how I evaluated AI responses, and how I overrode and corrected AI output where needed.
 
 ---
 
-# Phase 1 – Constitution Definition
+## Interaction Log and Audit
 
-## Prompt  
-`/speckit.constitution`
-
-The project is to build a basic shopping cart web application that fetches products
-from an API, displays them, and supports add-to-cart and cart management.
-The project must follow strict rules for code quality and structure, including clean
-architecture principles, modular and reusable components, consistent naming conventions, separation of concerns, linting and formatting standards, and performance best practices.
-It must ensure correct and complete implementation of all specifications, including input validation, robust error handling, edge-case handling, accessibility compliance, and security best practices.
-The project must be fully responsive across Desktop, Tablet, and Mobile. It must follow
-strong UI/UX standards: mobile-first design, semantic HTML, accessibility requirements, clear visual hierarchy, spacing consistency, and clean modern layout principles.
-It must include comprehensive unit testing with defined coverage expectations, edge-case testing, appropriate mocking, and reliable isolated tests. README.md must include Framework & Library Versions, Setup & Run Instructions, and Testing Instructions.
-Keep track of all conversations in developer-log.md with: AI Strategy (how context was provided to AI), Human Audit (at least 3 corrections made to AI output), and Verification (how AI was used to generate tests for complex edge cases).
-
-
-## Output  
-**File created:** `constitution.md`
-
-### What Was Produced
-- 10 Core Engineering Principles:
-  - Component Architecture  
-  - Design System Conformance  
-  - Responsive-First Approach  
-  - Accessibility (WCAG 2.1 AA)  
-  - TDD Enforcement  
-  - Performance Standards  
-  - State Management Discipline  
-  - API & Error Handling Standards  
-  - Frontend Security  
-  - Code Quality & Linting  
-
-- Development Standards:
-  - Loading states
-  - Coverage matrix
-  - Dependency governance
-
-- AI audit logging structure
-- Amendment & compliance governance
-
-This established non-negotiable quality gates before any feature work.
+Specific instances where I caught and corrected meaningful AI output issues:
 
 ---
 
-# Phase 2 – Initial Specification
+### Spec Review 1 — Multi-Quantity Add Scoped to Product Detail Modal Only
 
-## Prompt  
-`/speckit.specify`
+**Context:** Before the multi-quantity add feature was implemented, the AI-generated plan described adding a `QuantitySelector` and wiring the quantity value into the `addToCart` dispatch. The plan only mentioned `ProductDetailModal` as the target component.
 
-It is a basic cart application. The landing displays a list of products fetched from a live API. Each product shows essential details such as image, title, price, and a short description.Users can add products to their cart directly. The cart page displays all selected items along with their quantities and total price in a side bar/drawer.
+**What the plan got wrong:** The spec required both `ProductDetailModal` and `ProductCard` to support selecting a quantity before adding. The plan did not include `ProductCard` in the scope.
 
-
-## Output  
-**File created:** `spec.md`
-
-### Clarifications Resolved
-## Steering Prompt
-1. Sort & Filter required → **Yes**
-2. Cart persistence → **Within current browser session**
-3. Checkout required → **No**
-
-### Structured User Stories
-1. Browse Product Catalogue  
-2. Filter & Sort Products  
-3. Add to Cart  
-
-The constitution principles were validated before accepting the spec.
+**How I corrected it:** I flagged the omission before any implementation file was opened and revised the plan to include both components. Both were built with quantity support from the start — no rollback or after-the-fact patching was needed.
 
 ---
 
-# Phase 3 – Spec Audit & Feature Expansion
+### Spec Review 2 — Plan Proposed localStorage for Cart Persistence
 
-## Audit Finding
-Initial specification lacked:
-- Product detail view
-- Multi-quantity add capability
+**Context:** Before implementation of cart persistence began, The plan outlined using `redux-persist` with the default storage engine to keep the cart across sessions.
 
-## Steering Prompt
-Added:
-- Product detail view
-- Add multiple quantities at once
+**What the plan got wrong:** The plan proposed `localStorage`, which would have persisted the cart across browser sessions indefinitely. But we needed cart state should survive a page refresh within the same tab but clear when the browser is closed or a new session starts.
 
-## Output
-Updated `spec.md` with:
-
-### 4 Prioritized User Stories
-1. Browse Product Catalogue  
-2. Filter & Sort Products  
-3. View Product Details  
-4. Add to Cart with Quantity Control  
-
-Also added:
-- Functional requirements
-- Success criteria
-- Edge-case catalogue
-- Spec quality checklist validation
+**How I corrected it:** I caught the wrong storage adapter at the plan stage. I corrected the plan to import `sessionStorage`, and the implementation followed correctly from that point.
 
 ---
 
-# Phase 4 – Clarification Round
+### Spec Review 3 — Plan Proposed Zod for API Response Validation
 
-## Prompt  
-`/speckit.clarify`
+**Context:** During planning for API validation, the AI proposed using Zod to define a product schema and validate each API response item, rejecting ones that failed the schema.
 
-### Key Decisions
-## Steering Prompt
-1. No out-of-stock feature
-2. Add category filter tabs + sort control
-3. No consent banner (cart storage considered strictly necessary)
-4. Max quantity = 50
-5. API timeout = 10 seconds
+**What the plan got wrong:** The plan proposed installing Zod and defining a `productSchema.js` file but the validation was required to be a plain JS filter dropping items where required fields had wrong types, price was zero or negative, or image was empty.
 
-The specification was updated accordingly.
+**How I corrected it:** I rejected the Zod approach before any package was installed. I redirected the plan to a plain JS `parseProducts()` filter inside `transformResponse`, dropping items where required fields had wrong types, price was zero or negative, or image was empty. No Zod code was ever written.
 
 ---
 
-# Phase 5 – Architecture Planning
+### Spec Review 4 — Search Dropped from Filter/Sort Feature
 
-## Prompt  
-`/speckit.plan`
+**Context:** The plan for the product browsing feature included category filter tabs, a sort control, and a text search input. All three were scoped together as a single filtering feature.
 
-For the frontend UI/UX use react.js, tailwind and redux.Get the data from the API "https://fakestoreapi.com/products". Use Jest and React Testing Library for unit and integration testing. Use Playwright for end to end testing and deploy on vercel. responsive UI, frontend-only, no database
+**What the plan got wrong:** `fakestoreapi.com` provides no search endpoint and the project has no backend. A text search would have had to run client-side against the already-loaded product list, which conflicts with the project constraint of no text search.
 
-### Tech Stack
-- React (JavaScript)
-- Redux
-- Tailwind CSS
-- Jest + React Testing Library
-- Playwright (E2E)
-- Vercel deployment
-- Frontend-only (no database)
-- Live API: https://fakestoreapi.com/products
-
-## Steering Prompt
-AI initially structured the plan using TypeScript.  
-It was corrected to use **JavaScript** as originally intended.
-
-### Output
-`plan.md` included:
-- Project structure
-- Data model
-- Architecture layers
-- Risk analysis
-- Implementation notes
+**How I corrected it:** I prompted to remove search from the plan before any component work began. The category filter tabs and sort control were implemented as planned.
 
 ---
 
-# Phase 6 – Task Breakdown
+### Spec Review 5 — Out-of-Stock Feature Dropped, API Provides No Stock Count
 
-## Prompt  
-`/speckit.tasks`
+**Context:** An out-of-stock feature was considered and added, disabling "Add to Cart" and showing an unavailable state when a product had no remaining stock.
 
-## Output  
-**File created:** `tasks.md`
+**What the plan got wrong:** The `fakestoreapi.com` products endpoint returns no stock count or availability field. There is no data to derive an out of stock state from, making the feature unimplementable without introducing fabricated or hardcoded values.
 
-Included:
-- Setup tasks
-- Foundational architecture tasks
-- User story implementation tasks
-- Testing tasks
-- Deployment tasks
+**How I corrected it:** I steered it to drop the feature entirely during the spec stage. This avoided a speculative implementation built on data that does not exist.
 
-Structured as an actionable engineering checklist.
+---
+## Audit
+
+### Audit 1 — Add to Cart Button Remained Clickable at MAX_QUANTITY
+
+**What happened:** After adding 50 units of a product (the `MAX_QUANTITY` limit), the "Add to Cart" button remained fully interactive. Clicking it dispatched an action, but the reducer silently discarded it. The user could click indefinitely with no feedback.
+
+**How I prompted the AI:** I asked the AI to enforce the `MAX_QUANTITY` limit of 50 per product and prevent the cart from exceeding it and and display a "Max reached" label and disbale button.
 
 ---
 
-# Phase 7 – Architectural Analysis
+### Audit 2 — SVG Gradient ID Collision (StarRating)
 
-## Prompt  
-`/speckit.analyze`
+**What happened:** The AI's `StarRating` component defined `<linearGradient id="star-gradient">` inside each component's SVG. When the product grid rendered 20 cards simultaneously, all 20 `<linearGradient>` elements shared the same `id`. Browsers apply the last definition encountered, so every star on the page showed the same fill percentage — the rating of whichever card appeared last in the DOM.
 
-### Findings
-- 3 Critical
-- 2 High
-- 4 Medium
-- 5 Low deviations
+**How I evaluated the response:** I reviewed the generated SVG and noticed the gradient was defined as `<linearGradient id="star-gradient">` — a fixed, hardcoded `id`. I recognised that SVG `id` attributes are document-scoped, not component-scoped. When the product grid rendered 20 cards, all 20 gradient elements would share the same `id` and browsers would apply only the last definition, making every star on the page show the same fill.
 
-### Critical & High Issues Identified
-- Missing E2E coverage
-- No visual regression coverage
-- MSW not installed for API mocking
-- CSP headers absent from `vercel.json`
-- No retry mechanism on GET requests
+**How I prompted the AI:** I asked the AI to implement a fractional star rating component using an SVG gradient for partial fill with differnt id for each.
 
-All issues were resolved systematically by user clarifications.
+**How It corrected it:** It changed the gradient `id` to `star-gradient-${productId}` to make each instance independent. It then added a regression test that renders two `StarRating` components with different values and asserts both display the correct fill widths.
 
 ---
 
-# Phase 8 – Implementation (TDD Driven)
+### Audit 3 — Clamping Instead of Reverting on Invalid Quantity Input
 
-## Prompt  
-`/speckit.implement`
+**What happened:** During code review of the AI's quantity validation output, the implementation used a clamping strategy: a typed value of `0` or anything above `50` was clamped to `1`. The issue was caught before testing by reading the code — `Math.max(1, Math.min(MAX_QUANTITY, parsed))` was visible in the `onBlur` handler.
 
-### Execution Highlights
-- Followed Test-Driven Development as defined in the constitution
-- Installed missing dependencies
-- Implemented features incrementally
-- Built a fully working production-ready frontend application
+**How I evaluated the response:** I read the generated `onBlur` handler before running any tests and found `Math.max(1, Math.min(MAX_QUANTITY, parsed))`. This clamping approach silently mutates the cart: if a user holds 3 units and accidentally types `0`, the handler dispatches `updateQuantity(1)` and removes 2 items with no warning.
 
----
+**How I prompted the AI:** I asked the AI to handle invalid quantity input in `QuantitySelector` — values below 1 or above `MAX_QUANTITY` — and restore a valid state when the field loses focus.
 
-# Phase 9 – Manual QA & UX Refinement
-
-After core implementation, manual testing and UX refinement were performed.
+**How It corrected it:** It removed the `Math.max/min` clamp and rewrote the `onBlur` handler to treat out-of-range input as a no-op, the local display state resets to the current `cartQuantity` from Redux and no dispatch is fired. 
 
 ---
 
-## Key Bug Fixes & UX Enhancements
+### Audit 4 — Redux Quantity Not Synced Between ProductCard and ProductDetailModal
 
-### 1. Removed Native Number Input Arrows
-Replaced default browser number input arrows with controlled `+ / -` buttons across:
-- Landing page
-- Product modal
-- Cart drawer
+**What happened:** During manual testing, a product was added to the cart from the `ProductCard` (quantity 3). Opening the `ProductDetailModal` for the same product showed a quantity of 1. Changing the quantity in the modal and closing it also had no effect on what the card displayed.
 
-Improved UI consistency and control.
+**How I evaluated the response:** I tested manually by adding 3 units from `ProductCard`, then opening `ProductDetailModal` for the same product. The modal showed a quantity of 1. I traced the issue through the code: `ProductCard` was reading from `cartSlice`, while `ProductDetailModal` was reading from a separate UI quantity field the AI had silently added to `productsSlice`. They were writing to different Redux keys and never reflecting each other's state.
 
----
+**How I prompted the AI:** I asked the AI to connect quantity state to both `ProductCard` and `ProductDetailModal` so changes in either component reflected in the cart.
 
-### 2. Unified Quantity State
-Previously:
-- Modal quantity and cart quantity were unsynchronized.
-
-Fix:
-- Centralized quantity management in Redux
-- Ensured real-time synchronization across all components
+**How It corrected it:** It removed the separate quantity field from `productsSlice`. It unified both components to read from `cartSelectors.selectItemQuantity(id)` and write via `dispatch(updateQuantity(...))` in `cartSlice`.
 
 ---
 
-### 3. Toast Notification Overlap
-Issue:
-- Rapid additions caused overlapping toast notifications.
+### Audit 5 — AI Proposed a Raw Fetch Interceptor Instead of RTK Query Retry
 
-Fix:
-- Controlled toast concurrency
-- Prevented stacking overflow
+**What happened:** When asked to add retry logic to the product fetch, the AI responded with a custom `fetchFn` passed to `fetchBaseQuery`. The code was syntactically valid and would have retried, but it bypassed RTK Query's cache, timeout enforcement, and request lifecycle entirely.
 
----
+**How I evaluated the response:** I recognised this bypassed RTK Query's cache, the 10 s timeout, and the request lifecycle. Errors thrown inside a custom `fetchFn` don't surface through RTK Query's error state correctly, and the retry count was invisible to the rest of the codebase.
 
-### 4. Add-to-Cart Visual Feedback
-Improved button UX:
-- Temporary green success state
-- Smooth visual transition
-- Eliminated flashing behavior
+**How I prompted the AI:** I re-prompted the AI with an explicit constraint: stay within RTK Query's own tooling, no custom `fetchFn`
+
+**How It corrected it:** It replaced the output with `retry(fetchBaseQuery(...))` from `@reduxjs/toolkit/query`, wrapping the existing base query, with max retries capped at 3 in the config.
 
 ---
 
-### 5. Quantity Input UX Fix
-Issue:
-- Users could not clear the quantity field.
+## Verification
 
-Fix:
-- Allowed temporary empty input state
-- Applied validation on blur
-- Ensured numeric enforcement without blocking input
+**Using AI to generate tests for complex edge cases:**
+
+
+**Edge case: SVG gradient stop offsets for fractional star fills (3.7, 4.2)**
+
+The AI's initial `StarRating` test suite omitted fill percentage tests entirely. When explicitly asked to add them, the AI generated boundary tests — a rating of `0` producing all `0.0%` offsets and a rating of `5` producing all `100.0%` offsets — but did not include any mid-value fractional cases. A second explicit prompt was needed to add tests for values like `3.7` and `4.2`, where the expected per-star gradient stops are non-trivial to reason about (e.g. for 3.7: stars 1–3 at `100.0%`, star 4 at `70.0%`, star 5 at `0.0%`).
+
+Once directed to the mid-value cases, the AI produced correct assertions using a helper that reads the `offset` attribute of each `linearGradient` stop in the rendered SVG. Both the 3.7 and 4.2 tests were adopted without changes. The pattern required two rounds of prompting: one to add fill tests at all, and a second to cover fractional values between the boundaries.
 
 ---
 
-## Final Status
+**Edge case: Sort stability with equal ratings in `rating_desc`**
 
-The application is:
-- Fully responsive
-- Constitution-compliant
-- Test-covered (unit + integration + E2E)
-- Performance-optimized
-- Securely deployed
-- UX refined beyond initial specification
+The AI was asked directly about edge cases in the sort logic:
+> "What edge cases should I test for the product sort, specifically for `rating_desc`?"
+
+The AI identified sort stability with equal `rating.rate` values as a meaningful case, two products with identical ratings should preserve their original relative order (stable sort), not swap unpredictably between renders. It produced a correct test that constructed two products with equal ratings, ran them through the `rating_desc` comparator, and asserted that their order in the output matched their order in the input.
