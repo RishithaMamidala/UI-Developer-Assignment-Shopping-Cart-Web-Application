@@ -54,6 +54,7 @@ src/
 └── utils/             # currency, validation + tests
 tests/integration/     # Cross-component integration tests
 e2e/                   # Playwright end-to-end tests
+docs/                  # Project overview & developer logs
 ```
 
 ---
