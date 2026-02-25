@@ -137,7 +137,7 @@ E2E tests cover two flows:
 
 ## Live Deployment URL
 
-Live Deployment URL [https://ui-developer-assignment-shopping-ca.vercel.app/](https://ui-developer-assignment-shopping-ca.vercel.app/)
+[https://ui-developer-assignment-shopping-ca.vercel.app/](https://ui-developer-assignment-shopping-ca.vercel.app/)
 
 The app is configured for Vercel out of the box via `vercel.json`:
 

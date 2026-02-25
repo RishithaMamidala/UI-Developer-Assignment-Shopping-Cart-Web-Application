@@ -53,7 +53,7 @@ Specific instances where I caught and corrected meaningful AI output issues:
 
 ### Spec Review 5 — Out-of-Stock Feature Dropped, API Provides No Stock Count
 
-**Context:** An out-of-stock feature was considered and added, disabling "Add to Cart" and showing an unavailable state when a product had no remaining stock.
+**Context:** An out-of-stock feature was considered and planned, disabling "Add to Cart" and showing an unavailable state when a product had no remaining stock.
 
 **What the plan got wrong:** The `fakestoreapi.com` products endpoint returns no stock count or availability field. There is no data to derive an out of stock state from, making the feature unimplementable without introducing fabricated or hardcoded values.
 
@@ -81,7 +81,7 @@ Specific instances where I caught and corrected meaningful AI output issues:
 
 **How I evaluated the response:** I reviewed the generated SVG and noticed the gradient was defined as `<linearGradient id="star-gradient">` — a fixed, hardcoded `id`. I recognised that SVG `id` attributes are document-scoped, not component-scoped. When the product grid rendered 20 cards, all 20 gradient elements would share the same `id` and browsers would apply only the last definition, making every star on the page show the same fill.
 
-**How I prompted the AI:** I asked the AI to implement a fractional star rating component using an SVG gradient for partial fill with different id for each.
+**How I prompted the AI:** I asked the AI to implement a fractional star rating component using an SVG gradient for partial fill with a different id for each.
 
 **How it corrected it:** It changed the gradient `id` to `star-gradient-${productId}` to make each instance independent. It then added a regression test that renders two `StarRating` components with different values and asserts both display the correct fill widths.
 
@@ -117,7 +117,7 @@ Specific instances where I caught and corrected meaningful AI output issues:
 
 **How I evaluated the response:** I recognised this bypassed RTK Query's cache, the 10 s timeout, and the request lifecycle. Errors thrown inside a custom `fetchFn` don't surface through RTK Query's error state correctly, and the retry count was invisible to the rest of the codebase.
 
-**How I prompted the AI:** I re-prompted the AI with an explicit constraint: stay within RTK Query's own tooling, no custom `fetchFn`
+**How I prompted the AI:** I re-prompted the AI with an explicit constraint: stay within RTK Query's own tooling, no custom `fetchFn`.
 
 **How it corrected it:** It replaced the output with `retry(fetchBaseQuery(...))` from `@reduxjs/toolkit/query`, wrapping the existing base query, with max retries capped at 3 in the config.
 
