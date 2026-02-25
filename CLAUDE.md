@@ -11,7 +11,7 @@ Auto-generated from all feature plans. Last updated: 2026-02-23
 | Styling | Tailwind CSS v3 (tokens in `tailwind.config.js`) |
 | State — Cart | Redux Toolkit (`cartSlice`) + `redux-persist` (sessionStorage) |
 | State — API | RTK Query (`createApi` / `fetchBaseQuery`) |
-| API Validation | Zod (`ProductSchema`, `ProductArraySchema` in `transformResponse`) |
+| API Validation | Plain JS filter in `transformResponse` (drops malformed/invalid products) |
 | Testing | Jest 29 + React Testing Library + jest-axe |
 | External API | `https://fakestoreapi.com/products` (GET, no auth, 10s timeout) |
 | Deployment | Vercel — static SPA with `vercel.json` rewrite rule |
@@ -32,7 +32,7 @@ src/
 │   └── CartDrawer/    # Organism (lazy)
 │       └── CartLineItem/    # Molecule
 ├── features/
-│   ├── products/      # productsApi.js, productsSlice.js, productSchema.js
+│   ├── products/      # productsApi.js, productsSlice.js
 │   └── cart/          # cartSlice.js, cartSelectors.js
 ├── hooks/             # useFilteredProducts.js
 ├── utils/             # currency.js, validation.js
@@ -86,6 +86,7 @@ Key non-negotiables:
 ## Recent Changes
 
 - 2026-02-23: Feature `001-shopping-cart-app` planned — React + Vite + Tailwind + Redux + Jest stack confirmed
+- 2026-02-24: Removed Zod — API validation replaced with plain JS filter in `productsApi.js`; `productSchema.js` deleted
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

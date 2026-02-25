@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
@@ -71,19 +71,66 @@ describe('CartDrawer', () => {
     expect(screen.getByText('$40.00')).toBeInTheDocument();
   });
 
-  it('clicking the backdrop calls onClose', () => {
-    const onClose = jest.fn();
-    const { container } = renderDrawer(cartItems, onClose);
-    const backdrop = container.querySelector('[data-testid="cart-backdrop"]');
-    if (backdrop) fireEvent.click(backdrop);
-    expect(onClose).toHaveBeenCalled();
+  it('does not render the order total footer when cart is empty', () => {
+    renderDrawer([]);
+    expect(screen.queryByText(/order total/i)).not.toBeInTheDocument();
   });
 
-  it('clicking close button calls onClose', () => {
-    const onClose = jest.fn();
-    renderDrawer(cartItems, onClose);
-    fireEvent.click(screen.getByRole('button', { name: /close/i }));
-    expect(onClose).toHaveBeenCalled();
+  it('close button has aria-label "Close shopping cart"', () => {
+    renderDrawer();
+    expect(screen.getByRole('button', { name: 'Close shopping cart' })).toBeInTheDocument();
+  });
+
+  describe('close triggers (deferred 300 ms for exit animation)', () => {
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    it('clicking the backdrop calls onClose after exit animation', () => {
+      const onClose = jest.fn();
+      const { container } = renderDrawer(cartItems, onClose);
+      const backdrop = container.querySelector('[data-testid="cart-backdrop"]');
+      fireEvent.click(backdrop);
+      expect(onClose).not.toHaveBeenCalled();
+      act(() => jest.advanceTimersByTime(300));
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    it('clicking close button calls onClose after exit animation', () => {
+      const onClose = jest.fn();
+      renderDrawer(cartItems, onClose);
+      fireEvent.click(screen.getByRole('button', { name: /close/i }));
+      expect(onClose).not.toHaveBeenCalled();
+      act(() => jest.advanceTimersByTime(300));
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    it('pressing Escape calls onClose after exit animation', () => {
+      const onClose = jest.fn();
+      renderDrawer(cartItems, onClose);
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(onClose).not.toHaveBeenCalled();
+      act(() => jest.advanceTimersByTime(300));
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    it('"Continue Shopping" button calls onClose after exit animation', () => {
+      const onClose = jest.fn();
+      renderDrawer([], onClose);
+      fireEvent.click(screen.getByRole('button', { name: /continue shopping/i }));
+      expect(onClose).not.toHaveBeenCalled();
+      act(() => jest.advanceTimersByTime(300));
+      expect(onClose).toHaveBeenCalled();
+    });
+  });
+
+  it('shows item count in the header when cart has items', () => {
+    renderDrawer(cartItems);
+    expect(screen.getByText(/your cart \(2 items\)/i)).toBeInTheDocument();
+  });
+
+  it('shows singular "item" when cart has exactly one item', () => {
+    renderDrawer([cartItems[0]]);
+    expect(screen.getByText(/your cart \(1 item\)/i)).toBeInTheDocument();
   });
 
   it('empty cart shows empty state message', () => {
@@ -94,13 +141,6 @@ describe('CartDrawer', () => {
   it('empty cart shows "Continue Shopping" CTA', () => {
     renderDrawer([]);
     expect(screen.getByRole('button', { name: /continue shopping/i })).toBeInTheDocument();
-  });
-
-  it('"Continue Shopping" button calls onClose', () => {
-    const onClose = jest.fn();
-    renderDrawer([], onClose);
-    fireEvent.click(screen.getByRole('button', { name: /continue shopping/i }));
-    expect(onClose).toHaveBeenCalled();
   });
 
   it('passes axe accessibility audit', async () => {

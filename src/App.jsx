@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense } from 'react';
 import { useGetProductsQuery } from '@/features/products/productsApi.js';
 import {
   setActiveCategory,
@@ -14,7 +14,6 @@ import useFilteredProducts from '@/hooks/useFilteredProducts.js';
 import Header from '@/components/Header/Header.jsx';
 import ProductGrid from '@/components/ProductGrid/ProductGrid.jsx';
 import Spinner from '@/components/ui/Spinner/Spinner.jsx';
-import Toast from '@/components/ui/Toast/Toast.jsx';
 import CategoryTabs from '@/components/CategoryTabs/CategoryTabs.jsx';
 import SortSelect from '@/components/SortSelect/SortSelect.jsx';
 
@@ -46,9 +45,6 @@ export default function App() {
   const isCartOpen = useAppSelector(selectIsCartOpen);
   const cartCount = useAppSelector(selectCartCount);
 
-  // Toast state
-  const [toast, setToast] = useState({ visible: false, message: '', variant: 'success' });
-
   // Derived state
   const categories = [...new Set(products.map((p) => p.category))];
   const isEmpty = !isLoading && !isError && filteredProducts.length === 0;
@@ -63,7 +59,6 @@ export default function App() {
 
   function handleAddToCart(product, quantity) {
     dispatch(addToCart({ product, quantity }));
-    setToast({ visible: true, message: `Added ${quantity} item(s) to cart`, variant: 'success' });
   }
 
   return (
@@ -100,13 +95,6 @@ export default function App() {
         {isCartOpen && <CartDrawer onClose={handleCloseCart} />}
       </Suspense>
 
-      {toast.visible && (
-        <Toast
-          message={toast.message}
-          variant={toast.variant}
-          onDismiss={() => setToast({ visible: false, message: '', variant: 'success' })}
-        />
-      )}
     </div>
   );
 }

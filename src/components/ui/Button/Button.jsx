@@ -5,6 +5,7 @@ const VARIANT_CLASSES = {
   secondary: 'border border-primary text-primary hover:bg-blue-50 focus-visible:ring-primary',
   ghost: 'text-text hover:bg-gray-100 focus-visible:ring-gray-400',
   danger: 'bg-error text-white hover:bg-red-600 focus-visible:ring-error',
+  success: 'bg-success text-white hover:bg-green-600 focus-visible:ring-success',
 };
 
 const SIZE_CLASSES = {
@@ -16,7 +17,7 @@ const SIZE_CLASSES = {
 /**
  * Versatile button component.
  * @param {Object} props
- * @param {'primary'|'secondary'|'ghost'|'danger'} [props.variant='primary']
+ * @param {'primary'|'secondary'|'ghost'|'danger'|'success'} [props.variant='primary']
  * @param {'sm'|'md'|'lg'} [props.size='md']
  * @param {boolean} [props.disabled]
  * @param {boolean} [props.loading]

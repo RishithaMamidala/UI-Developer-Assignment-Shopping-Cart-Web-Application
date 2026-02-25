@@ -1,4 +1,4 @@
-import { useEffect, useId } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useGetProductsQuery } from '@/features/products/productsApi.js';
 import { addToCart } from '@/features/cart/cartSlice.js';
 import { selectCartItemByProductId } from '@/features/cart/cartSelectors.js';
@@ -27,6 +27,8 @@ export default function ProductDetailModal({ productId, onClose }) {
   const quantity = useAppSelector((state) => selectProductQuantity(state, productId));
   const cartItem = useAppSelector((state) => selectCartItemByProductId(state, productId));
   const isAtMax = (cartItem?.quantity ?? 0) >= MAX_QUANTITY;
+  const [added, setAdded] = useState(false);
+  const [isQtyInvalid, setIsQtyInvalid] = useState(false);
 
   // Close on Escape key
   useEffect(() => {
@@ -38,7 +40,7 @@ export default function ProductDetailModal({ productId, onClose }) {
   }, [onClose]);
 
   function handleAddToCart() {
-    if (!product || isAtMax) return;
+    if (!product || isAtMax || isQtyInvalid) return;
     dispatch(
       addToCart({
         product: {
@@ -51,7 +53,8 @@ export default function ProductDetailModal({ productId, onClose }) {
       })
     );
     dispatch(setProductQuantity({ productId, quantity: 1 }));
-    onClose();
+    setAdded(true);
+    setTimeout(onClose, 1000);
   }
 
   function handleBackdropClick(e) {
@@ -100,7 +103,7 @@ export default function ProductDetailModal({ productId, onClose }) {
         ) : (
           <div className="flex flex-col sm:flex-row gap-6 p-6">
             {/* Image */}
-            <div className="flex-shrink-0 flex items-center justify-center sm:w-56">
+            <div className="flex-shrink-0 flex items-center justify-center sm:w-56 bg-gray-100 rounded-card p-4">
               <img src={product.image} alt={product.title} className="max-h-64 object-contain" />
             </div>
 
@@ -123,12 +126,18 @@ export default function ProductDetailModal({ productId, onClose }) {
                 <QuantitySelector
                   value={quantity}
                   onChange={(q) => dispatch(setProductQuantity({ productId, quantity: q }))}
+                  onValidityChange={(isValid) => setIsQtyInvalid(!isValid)}
                   min={1}
                   max={MAX_QUANTITY}
                   disabled={isAtMax}
                 />
-                <Button onClick={handleAddToCart} aria-label="Add to cart" disabled={isAtMax}>
-                  Add to Cart
+                <Button
+                  onClick={handleAddToCart}
+                  aria-label="Add to cart"
+                  disabled={isAtMax || added || isQtyInvalid}
+                  variant={added ? 'success' : 'primary'}
+                >
+                  {added ? '✓ Added to Cart!' : 'Add to Cart'}
                 </Button>
                 {isAtMax && (
                   <p role="status" aria-live="polite" className="text-xs text-error">

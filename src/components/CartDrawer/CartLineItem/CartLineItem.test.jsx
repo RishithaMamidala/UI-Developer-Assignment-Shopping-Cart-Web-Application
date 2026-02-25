@@ -58,6 +58,7 @@ describe('CartLineItem', () => {
     expect(onQuantityChange).toHaveBeenCalledWith(3);
   });
 
+
   it('passes axe accessibility audit', async () => {
     const { container } = render(
       <CartLineItem item={item} onRemove={jest.fn()} onQuantityChange={jest.fn()} />

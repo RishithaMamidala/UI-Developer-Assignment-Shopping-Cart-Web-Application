@@ -53,17 +53,12 @@ beforeEach(() => {
   );
 });
 
-async function addItemToCart(cardIndex, extraIncrements = 0) {
+function addItemToCart(cardIndex, extraIncrements = 0) {
   const card = screen.getAllByRole('article')[cardIndex];
   for (let i = 0; i < extraIncrements; i++) {
     fireEvent.click(within(card).getByRole('button', { name: /increase quantity/i }));
   }
   fireEvent.click(within(card).getByRole('button', { name: /add to cart/i }));
-  // Dismiss toast if shown
-  await waitFor(() => {
-    const dismiss = screen.queryByRole('button', { name: /dismiss/i });
-    if (dismiss) fireEvent.click(dismiss);
-  });
 }
 
 async function openCart() {
@@ -81,8 +76,8 @@ describe('cart-management integration', () => {
     await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(3));
 
     // Add Alpha (qty=2) and Beta (qty=1)
-    await addItemToCart(0, 1); // Alpha qty=2
-    await addItemToCart(1, 0); // Beta qty=1
+    addItemToCart(0, 1); // Alpha qty=2
+    addItemToCart(1, 0); // Beta qty=1
 
     await openCart();
 
@@ -101,7 +96,7 @@ describe('cart-management integration', () => {
     await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(3));
 
     // Add Alpha (qty=2)
-    await addItemToCart(0, 1);
+    addItemToCart(0, 1);
 
     await openCart();
 
@@ -122,8 +117,8 @@ describe('cart-management integration', () => {
     renderApp();
     await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(3));
 
-    await addItemToCart(0, 0); // Alpha qty=1
-    await addItemToCart(1, 0); // Beta qty=1
+    addItemToCart(0, 0); // Alpha qty=1
+    addItemToCart(1, 0); // Beta qty=1
 
     await openCart();
 

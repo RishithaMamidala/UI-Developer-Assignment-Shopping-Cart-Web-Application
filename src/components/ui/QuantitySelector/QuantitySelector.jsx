@@ -1,4 +1,4 @@
-import { useState, useId } from 'react';
+import { useState, useId, useEffect } from 'react';
 
 /**
  * Numeric quantity selector with decrement/increment buttons.
@@ -9,6 +9,10 @@ import { useState, useId } from 'react';
  * @param {number} [props.max=50]
  * @param {boolean} [props.disabled]
  * @param {string} [props.label='Quantity']
+ * @param {number} [props.resetTo] - Value to restore on invalid blur. Defaults to `min`.
+ *   Pass the current item quantity in cart contexts to revert instead of resetting to min.
+ * @param {Function} [props.onValidityChange] - Called with `false` when the selector enters an
+ *   invalid state and `true` when it returns to a valid state. Use to disable dependent actions.
  * @returns {JSX.Element}
  */
 export default function QuantitySelector({
@@ -18,9 +22,18 @@ export default function QuantitySelector({
   max = 50,
   disabled = false,
   label = 'Quantity',
+  resetTo,
+  onValidityChange,
 }) {
   const [attempted, setAttempted] = useState(null);
+  // draft holds the raw string the user is typing so backspace/clear works
+  const [draft, setDraft] = useState(String(value));
   const inputId = useId();
+
+  // Sync display when the controlled value changes externally (e.g. reset after add-to-cart)
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
 
   function handleDecrement() {
     const next = value - 1;
@@ -28,6 +41,7 @@ export default function QuantitySelector({
       setAttempted(next);
     } else {
       setAttempted(null);
+      onValidityChange?.(true);
       onChange(next);
     }
   }
@@ -36,19 +50,28 @@ export default function QuantitySelector({
     const next = value + 1;
     if (next > max) {
       setAttempted(next);
+      onValidityChange?.(false);
     } else {
       setAttempted(null);
+      onValidityChange?.(true);
       onChange(next);
     }
   }
 
   function handleChange(e) {
-    const n = parseInt(e.target.value, 10);
-    if (isNaN(n)) return;
+    const raw = e.target.value;
+    setDraft(raw); // always update display so backspace/clear is visible
+    const n = parseInt(raw, 10);
+    if (isNaN(n)) {
+      onValidityChange?.(false); // empty / non-numeric — disable dependent actions
+      return;
+    }
     if (n < min || n > max) {
       setAttempted(n);
+      onValidityChange?.(false);
     } else {
       setAttempted(null);
+      onValidityChange?.(true);
       onChange(n);
     }
   }
@@ -59,12 +82,23 @@ export default function QuantitySelector({
   function handleBlur(e) {
     if (!e.currentTarget.contains(e.relatedTarget)) {
       setAttempted(null);
+      const n = parseInt(draft, 10);
+      if (isNaN(n) || n < min || n > max) {
+        // Cart: revert to the previous valid quantity; add-to-cart form: reset to min
+        const fallback = resetTo !== undefined ? resetTo : min;
+        setDraft(String(fallback));
+        onChange(fallback);
+      }
+      // Defer re-enabling dependent actions until after the current click event
+      // completes, so a click on a disabled Add-to-Cart button while the field
+      // is invalid can't sneak through as the button re-enables mid-event.
+      setTimeout(() => onValidityChange?.(true), 0);
     }
   }
 
   return (
     <div className="flex flex-col gap-1" onBlur={handleBlur}>
-      <label htmlFor={inputId} className="text-xs text-text-muted font-medium">
+      <label htmlFor={inputId} className="sr-only">
         {label}
       </label>
       <div className="flex items-center gap-1">
@@ -80,7 +114,7 @@ export default function QuantitySelector({
         <input
           id={inputId}
           type="number"
-          value={value}
+          value={draft}
           min={min}
           max={max}
           onChange={handleChange}

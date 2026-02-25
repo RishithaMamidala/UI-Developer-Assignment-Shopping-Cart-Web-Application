@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/hooks.js';
 import { updateQuantity, removeItem } from '@/features/cart/cartSlice.js';
 import { selectCartItems, selectCartTotal } from '@/features/cart/cartSelectors.js';
@@ -15,14 +16,28 @@ export default function CartDrawer({ onClose }) {
   const dispatch = useAppDispatch();
   const items = useAppSelector(selectCartItems);
   const total = useAppSelector(selectCartTotal);
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(onClose, 300);
+  }, [onClose]);
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') handleClose();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleClose]);
 
   return (
     <>
       {/* Backdrop */}
       <div
         data-testid="cart-backdrop"
-        className="fixed inset-0 z-40 bg-black/40"
-        onClick={onClose}
+        className={`fixed inset-0 z-40 bg-black/40 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+        onClick={handleClose}
         aria-hidden="true"
       />
 
@@ -31,16 +46,18 @@ export default function CartDrawer({ onClose }) {
         role="dialog"
         aria-modal="true"
         aria-label="Shopping cart"
-        className="fixed right-0 top-0 h-full w-80 sm:w-96 bg-surface z-50 shadow-xl flex flex-col"
+        className={`fixed right-0 top-0 h-full w-80 sm:w-96 bg-surface z-50 shadow-xl flex flex-col ${isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'}`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-border">
-          <h2 className="text-lg font-bold text-text">Your Cart</h2>
+        <div className="flex items-center justify-between px-4 h-16 bg-primary border-b border-primary-hover">
+          <h2 className="text-xl font-bold text-white">
+            Your Cart{items.length > 0 ? ` (${items.length} ${items.length === 1 ? 'item' : 'items'})` : ''}
+          </h2>
           <button
             type="button"
             aria-label="Close shopping cart"
-            onClick={onClose}
-            className="h-9 w-9 flex items-center justify-center rounded-btn text-text-muted hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            onClick={handleClose}
+            className="h-9 w-9 flex items-center justify-center rounded-btn text-white hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +80,7 @@ export default function CartDrawer({ onClose }) {
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-4 py-16">
               <p className="text-text-muted text-base">Your cart is empty.</p>
-              <Button variant="secondary" onClick={onClose}>
+              <Button variant="secondary" onClick={handleClose}>
                 Continue Shopping
               </Button>
             </div>

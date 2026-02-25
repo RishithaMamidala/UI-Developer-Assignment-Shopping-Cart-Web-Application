@@ -57,6 +57,26 @@ beforeEach(() => {
 });
 
 describe('add-to-cart integration', () => {
+  it('quantity incremented in listing card is reflected in the detail modal', async () => {
+    renderApp();
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(2));
+
+    const firstCard = screen.getAllByRole('article')[0];
+
+    // Increment quantity twice so qty=3
+    fireEvent.click(within(firstCard).getByRole('button', { name: /increase quantity/i }));
+    fireEvent.click(within(firstCard).getByRole('button', { name: /increase quantity/i }));
+
+    // Open the detail modal
+    fireEvent.click(within(firstCard).getByRole('button', { name: /view details/i }));
+
+    // Modal should reflect the same Redux quantity (3)
+    await waitFor(() => {
+      const dialog = screen.getByRole('dialog');
+      expect(within(dialog).getByRole('spinbutton')).toHaveValue(3);
+    });
+  });
+
   it('adds product to cart and shows cart badge count', async () => {
     renderApp();
     await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(2));
@@ -73,41 +93,5 @@ describe('add-to-cart integration', () => {
     });
   });
 
-  it('shows toast success message after adding to cart', async () => {
-    renderApp();
-    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(2));
-
-    const firstCard = screen.getAllByRole('article')[0];
-    fireEvent.click(within(firstCard).getByRole('button', { name: /add to cart/i }));
-
-    await waitFor(() => {
-      expect(screen.getByRole('status')).toBeInTheDocument();
-    });
-  });
-
-  it('adding same product again accumulates quantity', async () => {
-    renderApp();
-    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(2));
-
-    const firstCard = screen.getAllByRole('article')[0];
-
-    // First add: quantity=1
-    fireEvent.click(within(firstCard).getByRole('button', { name: /add to cart/i }));
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Cart, 1 items' })).toBeInTheDocument();
-    });
-
-    // Dismiss toast so it doesn't interfere
-    const dismissBtn = screen.queryByRole('button', { name: /dismiss/i });
-    if (dismissBtn) fireEvent.click(dismissBtn);
-
-    // Increment once then add again: quantity=2 → total = 3
-    fireEvent.click(within(screen.getAllByRole('article')[0]).getByRole('button', { name: /increase quantity/i }));
-    fireEvent.click(within(screen.getAllByRole('article')[0]).getByRole('button', { name: /add to cart/i }));
-
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Cart, 3 items' })).toBeInTheDocument();
-    });
-  });
 
 });

@@ -16,6 +16,26 @@ describe('Button', () => {
     expect(container.firstChild.className).toMatch(/bg-primary/);
   });
 
+  it('success variant has success styling', () => {
+    const { container } = render(<Button variant="success">Done</Button>);
+    expect(container.firstChild.className).toMatch(/bg-success/);
+  });
+
+  it('secondary variant has border and primary text styling', () => {
+    const { container } = render(<Button variant="secondary">Secondary</Button>);
+    expect(container.firstChild.className).toMatch(/border-primary/);
+  });
+
+  it('ghost variant has hover-gray styling', () => {
+    const { container } = render(<Button variant="ghost">Ghost</Button>);
+    expect(container.firstChild.className).toMatch(/hover:bg-gray-100/);
+  });
+
+  it('danger variant has error styling', () => {
+    const { container } = render(<Button variant="danger">Danger</Button>);
+    expect(container.firstChild.className).toMatch(/bg-error/);
+  });
+
   it('renders sm size', () => {
     const { container } = render(<Button size="sm">Small</Button>);
     expect(container.firstChild.className).toMatch(/text-sm/);

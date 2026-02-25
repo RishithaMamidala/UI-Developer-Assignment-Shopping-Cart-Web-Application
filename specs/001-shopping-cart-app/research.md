@@ -40,14 +40,14 @@
 
 ---
 
-## Decision 4: API Response Validation — Zod in `transformResponse`
+## Decision 4: API Response Validation — plain JS filter in `transformResponse`
 
-- **Decision**: Define `ProductSchema` and `ProductArraySchema` with Zod; parse inside RTK Query's `transformResponse` callback
-- **Rationale**: Constitution VIII requires API responses to be validated at the boundary using runtime schema validation. Zod provides a declarative schema, descriptive parse errors, and a `.transform()` method to filter malformed products before they reach component state.
-- **Malformed product handling**: `ProductArraySchema` applies a `.transform()` that filters out products missing `price > 0` or a valid `image` URL — satisfying the "malformed API data" edge case in the spec.
+- **Decision**: Filter raw API responses with a plain JS `parseProducts()` function inside RTK Query's `transformResponse` callback; no third-party schema library.
+- **Rationale**: Constitution VIII requires API responses to be validated at the boundary. A plain JS filter keeps the dependency count minimal while enforcing the same rules (required fields, `price > 0`, non-empty `image`).
+- **Malformed product handling**: `parseProducts()` drops any item missing required fields, with `price ≤ 0`, or with an empty `image` string — satisfying the "malformed API data" edge case in the spec.
 - **Alternatives considered**:
-  - **Yup** — less ergonomic transform API. Rejected.
-  - **Manual `if` checks in transformResponse** — brittle, no reusable schema type. Rejected.
+  - **Zod** — removed; adds a runtime dependency not needed for a plain-JS project. Rejected.
+  - **Yup** — less ergonomic. Rejected.
   - **No validation (trust the API)** — violates Constitution VIII. Rejected.
 
 ---

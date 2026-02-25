@@ -62,7 +62,23 @@ No query parameters, no headers, no authentication.
 ```js
 // src/features/products/productsApi.js
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { ProductArraySchema } from './productSchema';
+
+function parseProducts(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(
+    (p) =>
+      p &&
+      typeof p.id === 'number' &&
+      typeof p.title === 'string' && p.title.length > 0 &&
+      typeof p.price === 'number' && p.price > 0 &&
+      typeof p.description === 'string' &&
+      typeof p.category === 'string' &&
+      typeof p.image === 'string' && p.image.length > 0 &&
+      p.rating !== null && typeof p.rating === 'object' &&
+      typeof p.rating.rate === 'number' &&
+      typeof p.rating.count === 'number'
+  );
+}
 
 export const productsApi = createApi({
   reducerPath: 'productsApi',
@@ -74,7 +90,7 @@ export const productsApi = createApi({
     getProducts: builder.query({
       query: () => '/products',
       // Validate + filter malformed products at the API boundary (Constitution VIII)
-      transformResponse: raw => ProductArraySchema.parse(raw),
+      transformResponse: raw => parseProducts(raw),
     }),
   }),
 });
@@ -114,7 +130,7 @@ Same shape as a single item in the products array above.
 // Optional — add to productsApi.js if needed
 getProductById: builder.query({
   query: id => `/products/${id}`,
-  transformResponse: raw => ProductSchema.parse(raw),
+  transformResponse: raw => parseProducts(raw),
 }),
 ```
 

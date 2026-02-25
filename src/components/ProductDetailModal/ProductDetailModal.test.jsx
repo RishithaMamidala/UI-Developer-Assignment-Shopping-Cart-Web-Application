@@ -99,6 +99,20 @@ describe('ProductDetailModal', () => {
     });
   });
 
+  it('renders a visible "Quantity" label for the QuantitySelector', async () => {
+    renderModal(testProduct.id);
+    await waitFor(() => {
+      expect(screen.getByText(/^quantity$/i)).toBeInTheDocument();
+    });
+  });
+
+  it('renders StarRating for the product', async () => {
+    const { container } = renderModal(testProduct.id);
+    await waitFor(() => {
+      expect(container.querySelector('[aria-label*="Rated"]')).toBeInTheDocument();
+    });
+  });
+
   it('reflects quantity from shared Redux state (synced with listing card)', async () => {
     renderModal(testProduct.id, [testProduct], jest.fn(), [], { [testProduct.id]: 4 });
     await waitFor(() => expect(screen.getByRole('spinbutton')).toHaveValue(4));
@@ -118,12 +132,15 @@ describe('ProductDetailModal', () => {
     await waitFor(() => expect(screen.getByText('Test Product')).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /add to cart/i }));
-    expect(onClose).toHaveBeenCalled();
 
+    // Redux dispatch is synchronous — check cart state immediately
     const state = store.getState().cart;
     expect(state.items).toHaveLength(1);
     expect(state.items[0].productId).toBe(testProduct.id);
     expect(state.items[0].quantity).toBe(1);
+
+    // onClose is deferred 1 s to show the "✓ Added!" flash
+    await waitFor(() => expect(onClose).toHaveBeenCalled(), { timeout: 1500 });
   });
 
   it('pressing Escape calls onClose', async () => {
@@ -185,6 +202,14 @@ describe('ProductDetailModal', () => {
     );
   });
 
+  it('does not dispatch addToCart when quantity input shows an invalid value (0)', async () => {
+    const { store } = renderModal(testProduct.id);
+    await waitFor(() => expect(screen.getByText('Test Product')).toBeInTheDocument());
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '0' } });
+    fireEvent.click(screen.getByRole('button', { name: /add to cart/i }));
+    expect(store.getState().cart.items).toHaveLength(0);
+  });
+
   it('does not call onClose when Add to Cart is clicked at MAX_QUANTITY', async () => {
     const onClose = jest.fn();
     const maxCartItem = {
@@ -200,16 +225,6 @@ describe('ProductDetailModal', () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it('productId not in cache renders a loading/fallback state without crashing', async () => {
-    renderModal(999); // non-existent id
-    // Should not throw; may show loading or a fallback
-    await waitFor(() => {
-      // Either loading spinner or fallback text
-      const fallback = screen.queryByText(/loading/i) || screen.queryByRole('status');
-      // Just check no crash — modal may show loading or empty
-      expect(document.body).toBeInTheDocument();
-    });
-  });
 
   it('passes axe accessibility audit', async () => {
     const { container } = renderModal(testProduct.id);

@@ -1,4 +1,4 @@
-# Kibo — Project Documentation
+# Kibo Strore— Project Documentation
 
 ## Overview
 
@@ -10,11 +10,9 @@ The project runs entirely in the browser with no backend of its own. Product dat
 
 ## Technology Choices
 
-The stack was chosen to be modern but pragmatic. React 18 handles the UI, Vite 5 handles bundling and local development, and Tailwind CSS v3 handles styling through utility classes with a small set of custom design tokens. The codebase is plain JavaScript (ES2022+) with JSDoc comments rather than TypeScript — this keeps the toolchain light while still providing inline documentation for public functions and component props.
+The stack was chosen to be modern but pragmatic. React 18 handles the UI, Vite 5 handles bundling and local development, and Tailwind CSS v3 handles styling through utility classes with a small set of custom design tokens. The codebase is plain JavaScript (ES2022+) with JSDoc comments.
 
-State management is split into two concerns. The Redux Toolkit handles cart state and UI state (active category, sort order, which product modal is open). RTK Query, which is part of the Redux Toolkit ecosystem, handles all API data fetching with built-in caching and retry logic. This division means there are no raw `useEffect` fetch patterns in the codebase — everything goes through RTK Query.
-
-Data validation is handled by Zod. Every response from the FakeStore API is parsed through a `ProductArraySchema` before it reaches any component. This ensures that malformed products are silently dropped rather than causing crashes.
+State management is split into two concerns. The Redux Toolkit handles cart state and UI state (active category, sort order, which product modal is open). RTK Query, which is part of the Redux Toolkit ecosystem, handles all API data fetching with built-in caching and retry logic. This division means there are no raw `useEffect` fetch patterns in the codebase everything goes through RTK Query.
 
 ---
 
@@ -24,25 +22,25 @@ The source code lives in `src/` and follows Atomic Design principles.
 
 **`src/app/`** holds the Redux store configuration and shared hooks (`useAppDispatch`, `useAppSelector`). The store brings together three reducers: the RTK Query API cache, the products UI slice, and the cart slice (which is wrapped in `redux-persist`).
 
-**`src/components/ui/`** holds the atom-level components: `Button`, `Badge`, `QuantitySelector`, `StarRating`, `Spinner`, `Toast`, and `ProductSkeleton`. These are generic, reusable, and have no knowledge of application state.
+**`src/components/ui/`** holds the atom-level components: `Button`, `Badge`, `QuantitySelector`, `StarRating`, `Spinner` and `ProductSkeleton`. These are generic, reusable, and have no knowledge of application state.
 
 **`src/components/`** holds molecules and organisms. `ProductCard` and `CartLineItem` are molecules — they compose atoms and accept props but remain relatively self-contained. `Header`, `ProductGrid`, `ProductDetailModal`, and `CartDrawer` are organisms that wire directly into Redux state. The modal and drawer are code-split with `React.lazy` so they do not affect the initial page load.
 
-**`src/features/`** is split into `products/` and `cart/`. The products feature contains the RTK Query API definition, the productsSlice (UI state for filters and the selected product ID), and the Zod schemas. The cart feature contains the cartSlice and its selectors.
+**`src/features/`** is split into `products/` and `cart/`. The products feature contains the RTK Query API definition and the productsSlice (UI state for filters and the selected product ID). The cart feature contains the cartSlice and its selectors.
 
 **`src/hooks/`** holds `useFilteredProducts`, a custom hook that reads API data and Redux filter/sort state and returns a sorted, filtered product list via `useMemo`.
 
-**`src/utils/`** holds `currency.js`, which exports `formatPrice()` using `Intl.NumberFormat`. This is the only way prices are formatted anywhere in the app — template literals are never used for prices.
+**`src/utils/`** holds `currency.js`, which exports `formatPrice()` using `Intl.NumberFormat`. This is the only way prices are formatted anywhere in the app, template literals are never used for prices.
 
-**`src/constants/`** holds the single constants file. `MAX_QUANTITY` (50) and `API_TIMEOUT` (10,000 ms) are the only magic numbers in the project.
+**`src/constants/`** holds the single constants file. `MAX_QUANTITY` (50) and `API_TIMEOUT` (10,000 ms).
 
 ---
 
 ## How the API Works
 
-There is one API endpoint: `GET /products`. RTK Query wraps this in a `createApi` call with a 10-second timeout and up to three automatic retries on failure. The response goes through `transformResponse`, which runs it through the Zod `ProductArraySchema`.
+There is one API endpoint: `GET /products`. RTK Query wraps this in a `createApi` call with a 10-second timeout and up to three automatic retries on failure. The response goes through `transformResponse`.
 
-The schema design took a few iterations. The naive approach — `z.array(ProductSchema)` — causes Zod to throw on the first invalid item before any filtering can happen. The production approach uses `z.array(z.unknown())` and then calls `ProductSchema.safeParse()` on each item individually, collecting only the valid results. Products with missing images, non-positive prices, or malformed fields are silently dropped.
+The response goes through a plain JS filter in `transformResponse`. Products with missing required fields, non-positive prices, or empty image URLs are silently dropped before the data reaches Redux.
 
 The validated product list is cached in Redux. Any component that needs product data calls `useGetProductsQuery()` and gets back the loading state, error state, and data automatically.
 
@@ -52,7 +50,7 @@ The validated product list is cached in Redux. Any component that needs product 
 
 **Cart state** lives in the `cartSlice`. Each cart item stores the product ID, title, image, price, and quantity. Two actions handle quantity changes: `addToCart` merges quantities if the product is already in the cart (capped at `MAX_QUANTITY`), and `updateQuantity` removes the item if the new quantity is zero. The cart slice is wrapped in `redux-persist` configured to use `sessionStorage`, so the cart survives page refreshes but is cleared when the browser tab is closed.
 
-**Products UI state** lives in the `productsSlice`. It holds the active category filter, the current sort order, the ID of the product whose modal is open, and a `productQuantities` map. The quantity map deserves explanation: both `ProductCard` (on the listing page) and `ProductDetailModal` (in the modal) need to show the same quantity for a given product. Lifting that state into Redux — rather than keeping independent `useState` values — ensures they stay in sync.
+**Products UI state** lives in the `productsSlice`. It holds the active category filter, the current sort order, the ID of the product whose modal is open, and a `productQuantities` map. The quantity map deserves explanation: both `ProductCard` (on the listing page) and `ProductDetailModal` (in the modal) need to show the same quantity for a given product. Lifting that state into Redux, rather than keeping independent `useState` values — ensures they stay in sync.
 
 **Selectors** in `cartSelectors.js` compute derived values from cart state: the total item count for the header badge, the total price, and whether the drawer is open. These are used throughout the app rather than repeating the same reduce logic in multiple components.
 
@@ -80,17 +78,9 @@ Categories come directly from the product data — there is no hardcoded categor
 
 ---
 
-## Accessibility
-
-WCAG 2.1 AA compliance is enforced through the project constitution and verified in every component test using `jest-axe`. All interactive elements have appropriate ARIA roles and labels. The QuantitySelector uses `role="spinbutton"` with `aria-valuemin`, `aria-valuemax`, and `aria-valuenow`. The cart badge has an accessible label (e.g., "Cart, 3 items"). Modal dialogs trap focus and respond to the Escape key. Dynamic content changes use `aria-live` regions.
-
-Focus indicators use `focus-visible:ring-2` on all interactive elements. This was explicit — Tailwind's default ring styles needed to be added by hand on the QuantitySelector buttons to satisfy the accessibility audit.
-
----
-
 ## Testing
 
-The project uses Test-Driven Development. A failing test is written before each piece of functionality is implemented. The test suite has 181 tests across 26 suites, all passing.
+The project uses Test-Driven Development. A failing test is written before each piece of functionality is implemented. 
 
 Coverage thresholds are enforced by Jest and will fail the CI build if not met:
 
@@ -98,11 +88,11 @@ Coverage thresholds are enforced by Jest and will fail the CI build if not met:
 - Hooks and features: 90% statements, 85% branches, 95% functions
 - Global: 85% statements, 80% branches, 90% functions
 
-MSW v2 handles API mocking. A single shared server is initialized in `jest.setup.cjs` and individual tests override specific handlers with `server.use(http.get(...))`. This pattern replaced an earlier approach of calling `upsertQueryData` directly, which was overridden by live MSW fetch responses.
+MSW v2 handles API mocking. A single shared server is initialized in `jest.setup.cjs` and individual tests override specific handlers with 
 
 Playwright covers two end-to-end flows: browsing the catalogue (skeleton loading, product rendering, no horizontal overflow across three viewports) and adding to cart (quantity selector, cart badge increment, drawer contents, order total). Tests run against `localhost:4173` in CI (the Vite preview server) using a `PLAYWRIGHT_BASE_URL` environment variable.
 
-`redux-persist` in tests requires isolated state. Each test that involves the store uses a unique persist key (`Date.now() + Math.random()`) to prevent state leaking from one test to the next via `sessionStorage`.
+`redux-persist` in tests requires isolated state. Each test that involves the store uses a unique persist key to prevent state leaking from one test to the next via `sessionStorage`.
 
 ---
 
@@ -115,39 +105,9 @@ The GitHub Actions pipeline runs six jobs on every push and pull request:
 3. **Build** — Vite production build; the `dist/` folder is uploaded as an artifact
 4. **Audit** — `npm audit --audit-level=high` to catch high-severity dependency vulnerabilities
 5. **E2E** — Playwright tests against the preview server
-6. **Lighthouse** — Performance ≥ 0.9, Accessibility = 1.0, Best Practices ≥ 0.9
-
-The E2E and Lighthouse jobs depend on the build job (they need the `dist/` artifact). All other jobs run in parallel.
 
 ---
 
 ## Deployment
 
 The app deploys to Vercel as a static SPA. `vercel.json` contains a rewrite rule that sends all requests to `index.html`, which is required for client-side routing to work. The same file sets Content Security Policy headers that allow images from the FakeStore CDN and API calls to `fakestoreapi.com` while blocking everything else.
-
-The production build output is roughly 367 KB uncompressed and 115 KB gzipped, with the `ProductDetailModal` and `CartDrawer` chunks loaded on demand.
-
----
-
-## Known Design Constraints
-
-A few decisions are intentional limitations rather than missing features:
-
-- **No search** — the UI offers category tabs and sort order only. Text search was out of scope for this feature.
-- **No checkout** — the cart is for review only. There is no payment or order submission flow.
-- **No localStorage** — cart persistence uses `sessionStorage` only. Clearing the tab also clears the cart.
-- **No backend** — all data comes from FakeStore. There is no authentication, user accounts, or order history.
-
----
-
-## Lessons from Implementation
-
-Several bugs were caught during testing that were not obvious from reading the code:
-
-The Zod schema for products originally used `z.array(ProductSchema)`. This threw an exception on the first invalid item, preventing valid items from being returned. Switching to `z.array(z.unknown())` with per-item `safeParse()` fixed this.
-
-The `fireEvent.click` function in React Testing Library bypasses the HTML `disabled` attribute. Disabled buttons that had no handler guard would still execute their click logic in tests. Adding early-return guards to all handlers that check the disabled condition fixed this class of bug.
-
-Redux Persist version 6 uses a double-serialization format internally: the outer value is a JSON string, and the `items` field inside is itself another JSON string. Tests that pre-populated `sessionStorage` with a single `JSON.stringify` call failed to rehydrate correctly. Matching the internal format fixed the test failures.
-
-The quantity selector in `ProductCard` and `ProductDetailModal` originally used independent `useState` hooks. Changing the quantity in one did not update the other. Lifting the quantity into a `productQuantities` map in Redux resolved the inconsistency.

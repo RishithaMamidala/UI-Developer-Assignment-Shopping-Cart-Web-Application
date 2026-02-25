@@ -31,6 +31,7 @@ export default function CartLineItem({ item, onRemove, onQuantityChange }) {
             onChange={onQuantityChange}
             min={1}
             max={MAX_QUANTITY}
+            resetTo={item.quantity}
           />
           <span className="text-sm font-semibold text-text whitespace-nowrap">
             {formatPrice(item.price * item.quantity)}

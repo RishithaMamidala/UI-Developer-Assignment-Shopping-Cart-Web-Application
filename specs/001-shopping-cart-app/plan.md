@@ -18,7 +18,7 @@ Greenfield frontend-only SPA: a modern shopping cart built with React 18 + Vite 
 | **Styling** | Tailwind CSS v3 (design tokens in `tailwind.config.js`) |
 | **State — Cart** | Redux Toolkit (`cartSlice`) + `redux-persist` → `sessionStorage` |
 | **State — Products API** | RTK Query (`createApi`) — satisfies Constitution VII data-fetching library requirement |
-| **API Runtime Validation** | Zod (runtime shape validation; filters malformed products at boundary) |
+| **API Runtime Validation** | Plain JS filter in `transformResponse` (drops malformed products at boundary) |
 | **Testing** | Jest 29 + React Testing Library + jest-axe |
 | **API Endpoint** | `https://fakestoreapi.com/products` (public, no auth, browser-direct) |
 | **Currency Locale** | `en-US` / USD — `Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })` |
@@ -43,7 +43,7 @@ Greenfield frontend-only SPA: a modern shopping cart built with React 18 + Vite 
 | V | TDD (NON-NEGOTIABLE) | ✅ PASS | Jest + RTL; CI coverage gates: Components 85/80/90, Hooks/Services 90/85/95, Utils 95/90/100 |
 | VI | Performance Optimization | ✅ PASS | Vite code splitting; `React.lazy` for drawer + modal; skeleton screens prevent CLS; RTK Query caching |
 | VII | State Management Discipline | ✅ PASS | Cart → Redux Toolkit slice; Products → RTK Query; filter/sort UI → `productsSlice` |
-| VIII | API Integration & Error Handling | ✅ PASS | RTK Query: loading/success/error states; 10s timeout (FR-036); Zod validation; automatic retry via RTK Query `retry` wrapper (maxRetries: 3) on transient GET failures — see T023 |
+| VIII | API Integration & Error Handling | ✅ PASS | RTK Query: loading/success/error states; 10s timeout (FR-036); plain JS validation in `transformResponse`; automatic retry via RTK Query `retry` wrapper (maxRetries: 3) on transient GET failures — see T023 |
 | IX | Frontend Security | ✅ PASS | JSX escapes by default; no `dangerouslySetInnerHTML`; external links use `rel="noopener noreferrer"` |
 | X | Code Quality & Maintainability | ⚠️ DEVIATION | ESLint + Prettier enforced; TypeScript strict not applicable (JS project — user explicit choice); JSDoc on all public APIs |
 
@@ -59,7 +59,7 @@ Greenfield frontend-only SPA: a modern shopping cart built with React 18 + Vite 
 specs/001-shopping-cart-app/
 ├── plan.md                      # This file (/speckit.plan output)
 ├── research.md                  # Phase 0 research findings
-├── data-model.md                # Entities, Zod schemas, state shapes
+├── data-model.md                # Entities, state shapes
 ├── quickstart.md                # Scaffold, install, run, test steps
 ├── contracts/
 │   ├── api.md                   # FakeStore API + RTK Query contracts
@@ -110,9 +110,8 @@ src/
 │
 ├── features/
 │   ├── products/
-│   │   ├── productsApi.js          # RTK Query createApi — GET /products
-│   │   ├── productsSlice.js        # activeCategory, sortBy, selectedProductId
-│   │   └── productSchema.js        # Zod ProductSchema + ProductArraySchema
+│   │   ├── productsApi.js          # RTK Query createApi — GET /products (plain JS filter in transformResponse)
+│   │   └── productsSlice.js        # activeCategory, sortBy, selectedProductId
 │   └── cart/
 │       ├── cartSlice.js            # items[], isOpen — add/remove/update/open/close
 │       └── cartSelectors.js        # selectCartItems, selectCartTotal, selectCartCount
@@ -154,7 +153,7 @@ package.json
 | Constitution X — TypeScript strict mode not used | Explicit user preference: "use javascript instead" | TypeScript requires `tsc` toolchain + tsconfig + type annotations; user opted for plain JS |
 | Constitution VI — WebP/AVIF image format not used | FakeStore CDN (`fakestoreapi.com`) serves JPEG/PNG; client cannot reformat CDN-hosted images | Image conversion proxy (Cloudflare Images, imgix) would add a paid CDN dependency and infrastructure complexity disproportionate to a demo SPA |
 
-**Mitigations**: ESLint (`plugin:react/recommended` + `react-hooks/recommended` + `no-undef` + `no-unused-vars`); Zod for API boundary validation; JSDoc `@param` / `@returns` on all public APIs.
+**Mitigations**: ESLint (`plugin:react/recommended` + `react-hooks/recommended` + `no-undef` + `no-unused-vars`); plain JS filter for API boundary validation; JSDoc `@param` / `@returns` on all public APIs.
 **WebP deviation mitigation**: All `<img>` tags rendering FakeStore images MUST specify explicit `width` and `height` attributes (or equivalent Tailwind `w-*`/`h-*` with `aspect-ratio`) to prevent CLS — partially satisfying the spirit of Constitution VI's layout-stability goal.
 
 ---
@@ -168,7 +167,7 @@ See [research.md](./research.md) for full findings. Key decisions:
 | Scaffolding | Vite 5 | CRA unmaintained; Vite = faster HMR, native ESM, superior tree-shaking |
 | Products async state | RTK Query | Constitution VII forbids raw `useEffect` fetch; RTK Query is Redux-native data-fetching |
 | API timeout | `fetchBaseQuery({ timeout: 10000 })` | Enforces FR-036 at the API layer without manual AbortController |
-| API response validation | Zod `transformResponse` | Constitution VIII requires runtime schema validation at external boundary |
+| API response validation | Plain JS filter in `transformResponse` | Constitution VIII requires runtime validation at external boundary |
 | Cart persistence | `redux-persist` + `sessionStorage` | FR-029 (page-refresh persistence); session-only per spec assumption |
 | Currency | `Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })` | FakeStore prices are USD; `Intl` avoids floating-point rounding bugs (SC-003) |
 | Category tabs | Derived from `products.map(p => p.category)` | FR-007 requires dynamic derivation from API data; no hardcoded list |
@@ -217,7 +216,7 @@ See [contracts/api.md](./contracts/api.md) for full contracts.
 
 | Endpoint | Method | Auth | Timeout | Validated By |
 |----------|--------|------|---------|-------------|
-| `https://fakestoreapi.com/products` | GET | None | 10 000 ms | `ProductArraySchema` (Zod) |
+| `https://fakestoreapi.com/products` | GET | None | 10 000 ms | `parseProducts()` (plain JS filter) |
 
 RTK Query hook: `useGetProductsQuery()` — exposes `{ data, isLoading, isFetching, isError, error, refetch }`.
 

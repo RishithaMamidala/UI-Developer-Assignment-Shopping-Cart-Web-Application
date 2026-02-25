@@ -52,9 +52,6 @@ npm install @reduxjs/toolkit react-redux redux-persist
 npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
 
-# API validation
-npm install zod
-
 # Testing (unit + integration)
 npm install -D jest @testing-library/react @testing-library/jest-dom @testing-library/user-event jest-axe jest-environment-jsdom babel-jest @babel/core @babel/preset-env @babel/preset-react msw
 
@@ -240,8 +237,7 @@ Implement files in this dependency order to avoid import errors:
 1. `src/constants/index.js` — constants (no imports)
 2. `src/utils/currency.js` — pure utility (no imports)
 3. `src/utils/validation.js` — pure utility (imports constants)
-4. `src/features/products/productSchema.js` — Zod schema (imports zod)
-5. `src/features/products/productsApi.js` — RTK Query API (imports schema)
+4. `src/features/products/productsApi.js` — RTK Query API (plain JS filter in transformResponse)
 6. `src/features/products/productsSlice.js` — UI state slice
 7. `src/features/cart/cartSlice.js` — cart state slice (imports constants)
 8. `src/features/cart/cartSelectors.js` — selectors (imports slice)
@@ -317,7 +313,7 @@ vercel --prod
 | File | Purpose |
 |------|---------|
 | [plan.md](./plan.md) | Implementation plan (this feature) |
-| [data-model.md](./data-model.md) | Entity shapes, Zod schemas, state |
+| [data-model.md](./data-model.md) | Entity shapes, state |
 | [contracts/api.md](./contracts/api.md) | FakeStore API + RTK Query contracts |
 | [contracts/redux-store.md](./contracts/redux-store.md) | Redux store shape + slice actions |
 | [contracts/component-interfaces.md](./contracts/component-interfaces.md) | Component prop contracts |

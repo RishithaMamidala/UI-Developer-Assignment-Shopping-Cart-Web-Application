@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { formatPrice } from '@/utils/currency.js';
 import { MAX_QUANTITY } from '@/constants/index.js';
 import { selectCartItemByProductId } from '@/features/cart/cartSelectors.js';
@@ -20,6 +21,8 @@ const PLACEHOLDER_SRC =
  */
 export default function ProductCard({ product, onOpenDetail, onAddToCart }) {
   const dispatch = useAppDispatch();
+  const [added, setAdded] = useState(false);
+  const [isQtyInvalid, setIsQtyInvalid] = useState(false);
 
   const quantity = useAppSelector((state) => selectProductQuantity(state, product.id));
   const cartItem = useAppSelector((state) => selectCartItemByProductId(state, product.id));
@@ -31,12 +34,14 @@ export default function ProductCard({ product, onOpenDetail, onAddToCart }) {
 
   function handleAddToCart(e) {
     e.stopPropagation();
-    if (isAtMax) return;
+    if (isAtMax || added || isQtyInvalid) return;
     onAddToCart(
       { productId: product.id, title: product.title, image: product.image, price: product.price },
       quantity
     );
     dispatch(setProductQuantity({ productId: product.id, quantity: 1 }));
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
   }
 
   function handleCardClick() {
@@ -61,19 +66,20 @@ export default function ProductCard({ product, onOpenDetail, onAddToCart }) {
         onKeyDown={handleKeyDown}
         className="cursor-pointer flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
-        <img
-          src={product.image}
-          alt={product.title}
-          className="w-full h-56 object-contain p-4"
-          onError={(e) => {
-            e.currentTarget.src = PLACEHOLDER_SRC;
-          }}
-        />
-        <div className="px-4 pb-2">
+        <div className="bg-gray-100 rounded-t-card">
+          <img
+            src={product.image}
+            alt={product.title}
+            className="w-full h-56 object-contain p-4"
+            onError={(e) => {
+              e.currentTarget.src = PLACEHOLDER_SRC;
+            }}
+          />
+        </div>
+        <div className="px-4 pb-2 pt-3">
           <h2 className="text-sm font-semibold text-text line-clamp-2 mb-1">{product.title}</h2>
           <p className="text-primary font-bold text-lg mb-1">{formatPrice(product.price)}</p>
           <StarRating rate={product.rating.rate} count={product.rating.count} />
-          <p className="text-text-muted text-xs mt-2 line-clamp-3">{product.description}</p>
         </div>
       </div>
 
@@ -82,19 +88,20 @@ export default function ProductCard({ product, onOpenDetail, onAddToCart }) {
         <QuantitySelector
           value={quantity}
           onChange={handleQuantityChange}
+          onValidityChange={(isValid) => setIsQtyInvalid(!isValid)}
           min={1}
           max={MAX_QUANTITY}
           label="Quantity"
           disabled={isAtMax}
         />
         <Button
-          variant="primary"
+          variant={added ? 'success' : 'primary'}
           size="sm"
           className="w-full"
           onClick={handleAddToCart}
-          disabled={isAtMax}
+          disabled={isAtMax || added || isQtyInvalid}
         >
-          Add to Cart
+          {added ? '✓ Added!' : 'Add to Cart'}
         </Button>
         {isAtMax && (
           <p role="status" aria-live="polite" className="text-xs text-error">

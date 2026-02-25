@@ -28,10 +28,10 @@ export default function CategoryTabs({ categories, activeCategory, onChange }) {
               aria-selected={isActive}
               onClick={() => onChange(value)}
               className={[
-                'h-11 px-4 whitespace-nowrap rounded-btn text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                'h-9 px-4 whitespace-nowrap rounded-full text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary capitalize',
                 isActive
-                  ? 'border-b-2 border-primary text-primary bg-primary/5'
-                  : 'text-text-muted hover:text-text hover:bg-surface',
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-surface text-text-muted border border-border hover:border-primary hover:text-primary',
               ].join(' ')}
             >
               {label}

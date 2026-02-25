@@ -25,7 +25,7 @@ export default function SortSelect({ value, onChange }) {
         id="sort-select"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-btn border border-border bg-surface px-3 text-sm text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="h-9 rounded-full border border-border bg-surface px-4 pr-8 text-sm text-text shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary hover:border-primary hover:text-primary transition-colors cursor-pointer"
       >
         {SORT_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>

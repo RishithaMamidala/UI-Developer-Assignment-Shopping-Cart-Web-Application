@@ -33,3 +33,7 @@ test-results/
 
 # Vite
 *.local
+
+# Personal developer logs
+docs/developer-log1.md
+docs/developer-log-2.md

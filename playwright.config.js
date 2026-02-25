@@ -8,6 +8,9 @@ export default defineConfig({
   use: {
     baseURL,
     browserName: 'chromium',
+    launchOptions: {
+      slowMo: 1000,  // 1000ms delay between each action
+    },
   },
   webServer: {
     // Only start the dev server automatically when running locally.

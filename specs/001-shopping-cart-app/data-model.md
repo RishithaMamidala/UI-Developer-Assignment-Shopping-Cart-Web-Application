@@ -31,29 +31,27 @@ Source: `GET https://fakestoreapi.com/products`
 - `"women's clothing"`
 - `"jewelery"`
 
-### Zod Schema (`src/features/products/productSchema.js`)
+### Validation (`src/features/products/productsApi.js` — `parseProducts`)
 
 ```js
-import { z } from 'zod';
-
-export const ProductSchema = z.object({
-  id:          z.number().int().positive(),
-  title:       z.string().min(1),
-  price:       z.number().nonnegative(),
-  description: z.string(),
-  category:    z.string().min(1),
-  image:       z.string().url(),
-  rating: z.object({
-    rate:  z.number().min(0).max(5),
-    count: z.number().int().nonnegative(),
-  }),
-});
-
-// Array schema — filters malformed products at boundary
-// (edge case: product missing price or invalid image URL)
-export const ProductArraySchema = z
-  .array(ProductSchema)
-  .transform(arr => arr.filter(p => p.price > 0 && p.image.startsWith('http')));
+// Plain JS filter inside RTK Query transformResponse
+// Drops any item missing required fields, with price ≤ 0, or with empty image
+function parseProducts(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(
+    (p) =>
+      p &&
+      typeof p.id === 'number' &&
+      typeof p.title === 'string' && p.title.length > 0 &&
+      typeof p.price === 'number' && p.price > 0 &&
+      typeof p.description === 'string' &&
+      typeof p.category === 'string' &&
+      typeof p.image === 'string' && p.image.length > 0 &&
+      p.rating !== null && typeof p.rating === 'object' &&
+      typeof p.rating.rate === 'number' &&
+      typeof p.rating.count === 'number'
+  );
+}
 ```
 
 ### JSDoc Typedef

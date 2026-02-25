@@ -1,8 +1,8 @@
-# Kibo — Shopping Cart App
+# Kibo Store— Shopping Cart App
 
 A single-page shopping cart application built with React. Browse a product catalogue from the [FakeStore API](https://fakestoreapi.com), filter by category, sort by price or rating, and manage a cart that persists across page refreshes within the same browser session.
 
-Live demo: _add your Vercel deployment URL here_
+Live demo: [https://ui-developer-assignment-shopping-ca.vercel.app/](https://ui-developer-assignment-shopping-ca.vercel.app/)
 
 ---
 
@@ -18,7 +18,6 @@ Live demo: _add your Vercel deployment URL here_
 | **State — Cart** | react-redux | ^9.2.0 |
 | **State — Cart** | redux-persist | ^6.0.0 |
 | **API Layer** | RTK Query (bundled with Redux Toolkit) | ^2.11.2 |
-| **Validation** | Zod | ^4.3.6 |
 | **Testing** | Jest | ^30.2.0 |
 | **Testing** | React Testing Library | ^16.3.2 |
 | **Testing** | jest-axe | ^10.0.0 |
@@ -89,8 +88,6 @@ Coverage thresholds are enforced in CI:
 | Utilities | 95% | 90% | 100% |
 | Hooks & features | 90% | 85% | 95% |
 | Global | 85% | 80% | 90% |
-
-The test suite includes 181 tests across 26 suites. API calls are mocked with MSW v2.
 
 ### End-to-end tests (Playwright)
 

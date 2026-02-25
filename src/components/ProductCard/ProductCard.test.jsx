@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -83,15 +83,28 @@ describe('ProductCard (basic)', () => {
     expect(container.querySelector('[aria-label*="Rated"]')).toBeInTheDocument();
   });
 
-  it('renders truncated description', () => {
-    renderCard();
-    expect(screen.getByText(/A great product description/)).toBeInTheDocument();
-  });
-
   it('passes axe accessibility audit', async () => {
     const { container } = renderCard();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+});
+
+describe('ProductCard (added flash state)', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  it('shows "✓ Added!" immediately after clicking Add to Cart', () => {
+    renderCard();
+    fireEvent.click(screen.getByRole('button', { name: /add to cart/i }));
+    expect(screen.getByRole('button', { name: /✓ added!/i })).toBeInTheDocument();
+  });
+
+  it('reverts to "Add to Cart" after 1.5 s', () => {
+    renderCard();
+    fireEvent.click(screen.getByRole('button', { name: /add to cart/i }));
+    act(() => jest.advanceTimersByTime(1500));
+    expect(screen.getByRole('button', { name: /add to cart/i })).toBeInTheDocument();
   });
 });
 
@@ -150,6 +163,20 @@ describe('ProductCard (US4 add-to-cart)', () => {
     );
   });
 
+  it('calls onAddToCart with quantity 1 when Add to Cart clicked at default quantity', () => {
+    const { handleAddToCart } = renderCard();
+    fireEvent.click(screen.getByRole('button', { name: /Add to Cart/i }));
+    expect(handleAddToCart).toHaveBeenCalledWith(
+      {
+        productId: mockProduct.id,
+        title: mockProduct.title,
+        image: mockProduct.image,
+        price: mockProduct.price,
+      },
+      1
+    );
+  });
+
   it('quantity resets to 1 after successful add', () => {
     renderCard();
     fireEvent.click(screen.getByRole('button', { name: /increase quantity/i })); // qty=2
@@ -196,6 +223,13 @@ describe('ProductCard (US4 add-to-cart)', () => {
       quantity: MAX_QUANTITY,
     };
     const { handleAddToCart } = renderCard({}, [maxCartItem]);
+    fireEvent.click(screen.getByRole('button', { name: /Add to Cart/i }));
+    expect(handleAddToCart).not.toHaveBeenCalled();
+  });
+
+  it('does not call onAddToCart when quantity input shows an invalid value (0)', () => {
+    const { handleAddToCart } = renderCard();
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '0' } });
     fireEvent.click(screen.getByRole('button', { name: /Add to Cart/i }));
     expect(handleAddToCart).not.toHaveBeenCalled();
   });

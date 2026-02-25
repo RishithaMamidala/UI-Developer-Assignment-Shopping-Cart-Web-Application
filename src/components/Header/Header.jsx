@@ -7,18 +7,18 @@
  */
 export default function Header({ cartCount, onOpenCart }) {
   return (
-    <header className="sticky top-0 z-50 bg-surface border-b border-border shadow-sm">
+    <header className="sticky top-0 z-50 bg-primary border-b border-primary-hover shadow-sm">
       <nav
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
         aria-label="Site navigation"
       >
-        <span className="text-xl font-bold text-text tracking-tight">Kibo</span>
+        <span className="text-2xl font-bold text-white tracking-tight">Kibo Store</span>
 
         <button
           type="button"
           aria-label={`Cart, ${cartCount} items`}
           onClick={onOpenCart}
-          className="relative h-11 w-11 flex items-center justify-center rounded-btn text-text hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors"
+          className="relative h-11 w-11 flex items-center justify-center rounded-btn text-white bg-white/10 border border-white/30 shadow-md hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white transition-colors"
         >
           {/* Cart icon */}
           <svg
@@ -39,8 +39,9 @@ export default function Header({ cartCount, onOpenCart }) {
 
           {cartCount > 0 && (
             <span
+              key={cartCount}
               aria-hidden="true"
-              className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center leading-none"
+              className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center leading-none animate-badge-pop"
             >
               {cartCount > 99 ? '99+' : cartCount}
             </span>
