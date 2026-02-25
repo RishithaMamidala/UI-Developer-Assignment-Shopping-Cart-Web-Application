@@ -23,9 +23,9 @@ Specific instances where I caught and corrected meaningful AI output issues:
 
 ### Spec Review 2 — Plan Proposed localStorage for Cart Persistence
 
-**Context:** Before implementation of cart persistence began, The plan outlined using `redux-persist` with the default storage engine to keep the cart across sessions.
+**Context:** Before implementation of cart persistence began, the plan outlined using `redux-persist` with the default storage engine to keep the cart across sessions.
 
-**What the plan got wrong:** The plan proposed `localStorage`, which would have persisted the cart across browser sessions indefinitely. But we needed cart state should survive a page refresh within the same tab but clear when the browser is closed or a new session starts.
+**What the plan got wrong:** The plan proposed `localStorage`, which would have persisted the cart across browser sessions indefinitely. But we needed cart state to survive a page refresh within the same tab but clear when the browser is closed or a new session starts.
 
 **How I corrected it:** I caught the wrong storage adapter at the plan stage. I corrected the plan to import `sessionStorage`, and the implementation followed correctly from that point.
 
@@ -60,13 +60,18 @@ Specific instances where I caught and corrected meaningful AI output issues:
 **How I corrected it:** I steered it to drop the feature entirely during the spec stage. This avoided a speculative implementation built on data that does not exist.
 
 ---
+
 ## Audit
 
 ### Audit 1 — Add to Cart Button Remained Clickable at MAX_QUANTITY
 
 **What happened:** After adding 50 units of a product (the `MAX_QUANTITY` limit), the "Add to Cart" button remained fully interactive. Clicking it dispatched an action, but the reducer silently discarded it. The user could click indefinitely with no feedback.
 
-**How I prompted the AI:** I asked the AI to enforce the `MAX_QUANTITY` limit of 50 per product and prevent the cart from exceeding it and and display a "Max reached" label and disbale button.
+**How I evaluated the response:** I tested manually by repeatedly clicking "Add to Cart" past 50 units and observed that the button stayed fully active. I then read the reducer and confirmed it silently discarded the action with no UI feedback — nothing in the component prevented the click or communicated the limit to the user.
+
+**How I prompted the AI:** I asked the AI to enforce the `MAX_QUANTITY` limit of 50 per product and prevent the cart from exceeding it and display a "Max reached" label and disable button.
+
+**How it corrected it:** It disabled the "Add to Cart" button when `cartQuantity >= MAX_QUANTITY`. The AI's initial output paired the disabled state with a toast notification, but I overrode that decision and replaced it with an inline "Max reached" label on the card instead.
 
 ---
 
@@ -76,9 +81,9 @@ Specific instances where I caught and corrected meaningful AI output issues:
 
 **How I evaluated the response:** I reviewed the generated SVG and noticed the gradient was defined as `<linearGradient id="star-gradient">` — a fixed, hardcoded `id`. I recognised that SVG `id` attributes are document-scoped, not component-scoped. When the product grid rendered 20 cards, all 20 gradient elements would share the same `id` and browsers would apply only the last definition, making every star on the page show the same fill.
 
-**How I prompted the AI:** I asked the AI to implement a fractional star rating component using an SVG gradient for partial fill with differnt id for each.
+**How I prompted the AI:** I asked the AI to implement a fractional star rating component using an SVG gradient for partial fill with different id for each.
 
-**How It corrected it:** It changed the gradient `id` to `star-gradient-${productId}` to make each instance independent. It then added a regression test that renders two `StarRating` components with different values and asserts both display the correct fill widths.
+**How it corrected it:** It changed the gradient `id` to `star-gradient-${productId}` to make each instance independent. It then added a regression test that renders two `StarRating` components with different values and asserts both display the correct fill widths.
 
 ---
 
@@ -90,7 +95,7 @@ Specific instances where I caught and corrected meaningful AI output issues:
 
 **How I prompted the AI:** I asked the AI to handle invalid quantity input in `QuantitySelector` — values below 1 or above `MAX_QUANTITY` — and restore a valid state when the field loses focus.
 
-**How It corrected it:** It removed the `Math.max/min` clamp and rewrote the `onBlur` handler to treat out-of-range input as a no-op, the local display state resets to the current `cartQuantity` from Redux and no dispatch is fired. 
+**How it corrected it:** It removed the `Math.max/min` clamp and rewrote the `onBlur` handler to treat out-of-range input as a no-op, the local display state resets to the current `cartQuantity` from Redux and no dispatch is fired. 
 
 ---
 
@@ -102,7 +107,7 @@ Specific instances where I caught and corrected meaningful AI output issues:
 
 **How I prompted the AI:** I asked the AI to connect quantity state to both `ProductCard` and `ProductDetailModal` so changes in either component reflected in the cart.
 
-**How It corrected it:** It removed the separate quantity field from `productsSlice`. It unified both components to read from `cartSelectors.selectItemQuantity(id)` and write via `dispatch(updateQuantity(...))` in `cartSlice`.
+**How it corrected it:** It removed the separate quantity field from `productsSlice`. It unified both components to read from `cartSelectors.selectItemQuantity(id)` and write via `dispatch(updateQuantity(...))` in `cartSlice`.
 
 ---
 
@@ -114,7 +119,7 @@ Specific instances where I caught and corrected meaningful AI output issues:
 
 **How I prompted the AI:** I re-prompted the AI with an explicit constraint: stay within RTK Query's own tooling, no custom `fetchFn`
 
-**How It corrected it:** It replaced the output with `retry(fetchBaseQuery(...))` from `@reduxjs/toolkit/query`, wrapping the existing base query, with max retries capped at 3 in the config.
+**How it corrected it:** It replaced the output with `retry(fetchBaseQuery(...))` from `@reduxjs/toolkit/query`, wrapping the existing base query, with max retries capped at 3 in the config.
 
 ---
 
