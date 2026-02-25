@@ -81,14 +81,6 @@ npm run test:watch       # Watch mode — re-runs on file changes
 npm run test:coverage    # Run tests and generate a coverage report
 ```
 
-Coverage thresholds are enforced in CI:
-
-| Scope | Statements | Branches | Functions |
-|---|---|---|---|
-| Utilities | 95% | 90% | 100% |
-| Hooks & features | 90% | 85% | 95% |
-| Global | 85% | 80% | 90% |
-
 ### End-to-end tests (Playwright)
 
 First build the app and start the preview server:
