@@ -68,8 +68,9 @@ test.describe('Cart Management', () => {
     const lineItems = drawer.locator('ul > li');
     await expect(lineItems).toHaveCount(2);
 
-    // Remove button has aria-label="Remove {product title}"
+    // Remove button has aria-label="Remove {product title}" — confirm in modal
     await lineItems.first().getByRole('button', { name: /^Remove /i }).click();
+    await page.getByRole('dialog', { name: /remove all/i }).getByRole('button', { name: /^remove$/i }).click();
     await expect(lineItems).toHaveCount(1);
   });
 
@@ -85,8 +86,9 @@ test.describe('Cart Management', () => {
     const drawer = page.getByRole('dialog', { name: 'Shopping cart' });
     await expect(drawer).toBeVisible();
 
-    // Remove the only item
+    // Remove the only item — confirm in modal
     await drawer.locator('ul > li').first().getByRole('button', { name: /^Remove /i }).click();
+    await page.getByRole('dialog', { name: /remove all/i }).getByRole('button', { name: /^remove$/i }).click();
 
     // Empty state — exact text from CartDrawer.jsx
     await expect(drawer.getByText('Your cart is empty.')).toBeVisible();
