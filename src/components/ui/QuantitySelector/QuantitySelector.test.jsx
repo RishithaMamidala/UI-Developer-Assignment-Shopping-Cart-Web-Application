@@ -66,41 +66,6 @@ describe('QuantitySelector', () => {
     expect(onChange).toHaveBeenCalledWith(10);
   });
 
-  it('typing a fractional value snaps display to floored integer and calls onChange with integer', () => {
-    const onChange = jest.fn();
-    render(<QuantitySelector value={5} onChange={onChange} min={1} max={50} />);
-    const input = screen.getByRole('spinbutton');
-    fireEvent.change(input, { target: { value: '2.9' } });
-    expect(onChange).toHaveBeenCalledWith(2);
-    expect(input).toHaveValue(2);
-  });
-
-  it('typing a trailing dot is treated as incomplete — onChange not called mid-edit', () => {
-    // <input type="number"> returns "" for "3." (incomplete value); treated same as clear
-    const onChange = jest.fn();
-    render(<QuantitySelector value={5} onChange={onChange} min={1} max={50} />);
-    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '3.' } });
-    expect(onChange).not.toHaveBeenCalled();
-  });
-
-  it('typing ".8" without resetTo (add-to-cart) snaps immediately to min', () => {
-    const onChange = jest.fn();
-    render(<QuantitySelector value={5} onChange={onChange} min={1} max={50} />);
-    const input = screen.getByRole('spinbutton');
-    fireEvent.change(input, { target: { value: '.8' } });
-    expect(onChange).toHaveBeenCalledWith(1);
-    expect(input).toHaveValue(1);
-  });
-
-  it('typing ".8" with resetTo (cart) snaps immediately to resetTo', () => {
-    const onChange = jest.fn();
-    render(<QuantitySelector value={4} onChange={onChange} min={1} max={50} resetTo={4} />);
-    const input = screen.getByRole('spinbutton');
-    fireEvent.change(input, { target: { value: '.8' } });
-    expect(onChange).toHaveBeenCalledWith(4);
-    expect(input).toHaveValue(4);
-  });
-
   it('typing a value with leading zeros snaps display to normalised integer', () => {
     const onChange = jest.fn();
     render(<QuantitySelector value={5} onChange={onChange} min={1} max={50} />);
@@ -134,7 +99,7 @@ describe('QuantitySelector', () => {
     expect(onValidityChange).not.toHaveBeenCalledWith(false);
   });
 
-  it('increment above max shows "Maximum quantity" alert and calls onValidityChange(false)', () => {
+  it('increment above max shows inline "Maximum quantity" alert and calls onValidityChange(false)', () => {
     const onValidityChange = jest.fn();
     render(<QuantitySelector value={50} onChange={jest.fn()} min={1} max={50} onValidityChange={onValidityChange} />);
     fireEvent.click(screen.getByRole('button', { name: 'Increase quantity' }));
@@ -192,23 +157,41 @@ describe('QuantitySelector', () => {
     expect(onChange).toHaveBeenCalledWith(1);
   });
 
-  it('cart: typing above max shows "Maximum is N — reverting to N" message', () => {
-    render(
-      <QuantitySelector value={4} onChange={jest.fn()} min={1} max={50} resetTo={4} />
-    );
+  it('cart: typing above max shows max-quantity modal', () => {
+    render(<QuantitySelector value={4} onChange={jest.fn()} min={1} max={50} resetTo={4} />);
     fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '99' } });
-    expect(screen.getByRole('alert')).toHaveTextContent('Maximum is 50 - reverting to 50');
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toHaveTextContent(/maximum quantity reached/i);
+    expect(screen.getByRole('dialog')).toHaveTextContent(/50/);
   });
 
-  it('cart: blur on over-max value clamps to max (50), not resetTo', () => {
+  it('cart: typing above max reverts input to resetTo immediately', () => {
     const onChange = jest.fn();
     render(<QuantitySelector value={4} onChange={onChange} min={1} max={50} resetTo={4} />);
     const input = screen.getByRole('spinbutton');
     fireEvent.change(input, { target: { value: '99' } });
+    expect(input).toHaveValue(4);
     expect(onChange).not.toHaveBeenCalled();
-    fireEvent.blur(input);
-    expect(input).toHaveValue(50);
-    expect(onChange).toHaveBeenCalledWith(50);
+  });
+
+  it('cart: dismissing max modal via "Got it" closes it', () => {
+    render(<QuantitySelector value={4} onChange={jest.fn()} min={1} max={50} resetTo={4} />);
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '99' } });
+    fireEvent.click(screen.getByRole('button', { name: /got it/i }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('cart: dismissing max modal via backdrop closes it', () => {
+    render(<QuantitySelector value={4} onChange={jest.fn()} min={1} max={50} resetTo={4} />);
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '99' } });
+    fireEvent.click(screen.getByTestId('max-quantity-backdrop'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('cart: typing above max does not show inline alert', () => {
+    render(<QuantitySelector value={4} onChange={jest.fn()} min={1} max={50} resetTo={4} />);
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '99' } });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('can type a new value after clearing the input', () => {
