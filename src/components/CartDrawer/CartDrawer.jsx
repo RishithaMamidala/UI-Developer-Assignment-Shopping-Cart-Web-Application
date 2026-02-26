@@ -103,10 +103,10 @@ export default function CartDrawer({ onClose }) {
 
         {/* Footer with total */}
         {items.length > 0 && (
-          <div className="border-t border-border px-4 py-4">
+          <div className="border-t border-border bg-primary px-4 py-5">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-text-muted">Order Total</span>
-              <span className="text-lg font-bold text-text">{formatPrice(total)}</span>
+              <span className="text-xl font-semibold text-white">Order Total</span>
+              <span className="text-2xl font-bold text-white">{formatPrice(total)}</span>
             </div>
           </div>
         )}
