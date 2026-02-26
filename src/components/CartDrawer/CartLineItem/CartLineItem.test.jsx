@@ -69,14 +69,18 @@ describe('CartLineItem', () => {
     expect(onQuantityChange).toHaveBeenCalledWith(item.quantity);
   });
 
-  it('typing above MAX_QUANTITY shows max-quantity modal and reverts input to current quantity', () => {
+  it('typing above MAX_QUANTITY shows inline max alert and reverts to original quantity on blur', () => {
     const onQuantityChange = jest.fn();
     render(<CartLineItem item={item} onRemove={jest.fn()} onQuantityChange={onQuantityChange} />);
     const input = screen.getByRole('spinbutton');
+    fireEvent.focus(input);
     fireEvent.change(input, { target: { value: String(MAX_QUANTITY + 1) } });
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(input).toHaveValue(item.quantity);
+    expect(screen.getByRole('alert')).toHaveTextContent(`Maximum quantity is ${MAX_QUANTITY}`);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(onQuantityChange).not.toHaveBeenCalled();
+    fireEvent.blur(input);
+    expect(input).toHaveValue(item.quantity);
+    expect(onQuantityChange).toHaveBeenCalledWith(item.quantity);
   });
 
   describe('remove confirmation modal', () => {

@@ -157,41 +157,56 @@ describe('QuantitySelector', () => {
     expect(onChange).toHaveBeenCalledWith(1);
   });
 
-  it('cart: typing above max shows max-quantity modal', () => {
-    render(<QuantitySelector value={4} onChange={jest.fn()} min={1} max={50} resetTo={4} />);
+  it('cart: typing above max shows inline "Maximum quantity" alert', () => {
+    render(<QuantitySelector value={5} onChange={jest.fn()} min={1} max={50} resetTo={5} />);
     fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '99' } });
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('dialog')).toHaveTextContent(/maximum quantity reached/i);
-    expect(screen.getByRole('dialog')).toHaveTextContent(/50/);
+    expect(screen.getByRole('alert')).toHaveTextContent('Maximum quantity is 50');
   });
 
-  it('cart: typing above max reverts input to resetTo immediately', () => {
+  it('cart: typing above max keeps draft until blur, then reverts to resetTo', () => {
     const onChange = jest.fn();
-    render(<QuantitySelector value={4} onChange={onChange} min={1} max={50} resetTo={4} />);
+    render(<QuantitySelector value={5} onChange={onChange} min={1} max={50} resetTo={5} />);
     const input = screen.getByRole('spinbutton');
+    fireEvent.focus(input);
     fireEvent.change(input, { target: { value: '99' } });
-    expect(input).toHaveValue(4);
+    expect(input).toHaveValue(99);
     expect(onChange).not.toHaveBeenCalled();
+    fireEvent.blur(input);
+    expect(input).toHaveValue(5);
+    expect(onChange).toHaveBeenCalledWith(5);
   });
 
-  it('cart: dismissing max modal via "Got it" closes it', () => {
-    render(<QuantitySelector value={4} onChange={jest.fn()} min={1} max={50} resetTo={4} />);
+  it('cart: reverts to original value even when intermediate valid keystrokes updated resetTo', () => {
+    // Simulate: value=5, user focuses, types "9" (valid → onChange(9) → resetTo becomes 9),
+    // then types "99" (invalid) → blur should revert to 5, not 9.
+    const onChange = jest.fn();
+    const { rerender } = render(
+      <QuantitySelector value={5} onChange={onChange} min={1} max={50} resetTo={5} />,
+    );
+    const input = screen.getByRole('spinbutton');
+
+    // Focus snapshots resetTo=5
+    fireEvent.focus(input);
+
+    // Typing "9" is valid — parent updates value and resetTo to 9
+    fireEvent.change(input, { target: { value: '9' } });
+    expect(onChange).toHaveBeenCalledWith(9);
+    rerender(<QuantitySelector value={9} onChange={onChange} min={1} max={50} resetTo={9} />);
+
+    // Typing "99" is invalid — error shown
+    fireEvent.change(input, { target: { value: '99' } });
+    expect(screen.getByRole('alert')).toHaveTextContent('Maximum quantity is 50');
+
+    // Blur should revert to the focus-time snapshot (5), not the updated resetTo (9)
+    fireEvent.blur(input);
+    expect(input).toHaveValue(5);
+    expect(onChange).toHaveBeenLastCalledWith(5);
+  });
+
+  it('cart: typing above max does not show a dialog', () => {
+    render(<QuantitySelector value={5} onChange={jest.fn()} min={1} max={50} resetTo={5} />);
     fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '99' } });
-    fireEvent.click(screen.getByRole('button', { name: /got it/i }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  it('cart: dismissing max modal via backdrop closes it', () => {
-    render(<QuantitySelector value={4} onChange={jest.fn()} min={1} max={50} resetTo={4} />);
-    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '99' } });
-    fireEvent.click(screen.getByTestId('max-quantity-backdrop'));
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  it('cart: typing above max does not show inline alert', () => {
-    render(<QuantitySelector value={4} onChange={jest.fn()} min={1} max={50} resetTo={4} />);
-    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '99' } });
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('can type a new value after clearing the input', () => {
