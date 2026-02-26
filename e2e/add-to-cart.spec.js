@@ -76,7 +76,7 @@ test.describe('Add to Cart Flow', () => {
 
     // Order Total section should be visible with a dollar amount
     await expect(drawer.getByText('Order Total')).toBeVisible();
-    const totalAmount = drawer.locator('span.text-lg.font-bold');
+    const totalAmount = drawer.locator('span.text-2xl.font-bold');
     await expect(totalAmount).toBeVisible();
     const totalText = await totalAmount.textContent();
     expect(totalText).toMatch(/^\$\d+\.\d{2}$/);

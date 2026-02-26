@@ -17,18 +17,18 @@ Live demo: [https://ui-developer-assignment-shopping-ca.vercel.app/](https://ui-
 | Category | Package | Version |
 |---|---|---|
 | **Environment** | Node.js | 18.20.8 |
-| **Framework** | React | ^19.2.4 |
-| **Bundler** | Vite | ^6.4.1 |
-| **Styling** | Tailwind CSS | ^3.4.19 |
-| **State — Cart** | Redux Toolkit | ^2.11.2 |
-| **State — Cart** | react-redux | ^9.2.0 |
-| **State — Cart** | redux-persist | ^6.0.0 |
-| **API Layer** | RTK Query (bundled with Redux Toolkit) | ^2.11.2 |
-| **Testing** | Jest | ^30.2.0 |
-| **Testing** | React Testing Library | ^16.3.2 |
-| **Testing** | jest-axe | ^10.0.0 |
-| **Testing** | MSW (Mock Service Worker) | ^2.12.10 |
-| **E2E** | Playwright | ^1.58.2 |
+| **Framework** | React | 19.2.4 |
+| **Bundler** | Vite | 6.4.1 |
+| **Styling** | Tailwind CSS | 3.4.19 |
+| **State — Cart** | Redux Toolkit | 2.11.2 |
+| **State — Cart** | react-redux | 9.2.0 |
+| **State — Cart** | redux-persist | 6.0.0 |
+| **API Layer** | RTK Query (bundled with Redux Toolkit) | 2.11.2 |
+| **Testing** | Jest | 30.2.0 |
+| **Testing** | React Testing Library | 16.3.2 |
+| **Testing** | jest-axe | 10.0.0 |
+| **Testing** | MSW (Mock Service Worker) | 2.12.10 |
+| **E2E** | Playwright | 1.58.2 |
 
 ---
 
