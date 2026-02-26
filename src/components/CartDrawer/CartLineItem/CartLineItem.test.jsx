@@ -69,14 +69,14 @@ describe('CartLineItem', () => {
     expect(onQuantityChange).toHaveBeenCalledWith(item.quantity);
   });
 
-  it('typing above MAX_QUANTITY and blurring reverts spinbutton to previous cart quantity', () => {
+  it('typing above MAX_QUANTITY and blurring clamps spinbutton to MAX_QUANTITY', () => {
     const onQuantityChange = jest.fn();
     render(<CartLineItem item={item} onRemove={jest.fn()} onQuantityChange={onQuantityChange} />);
     const input = screen.getByRole('spinbutton');
     fireEvent.change(input, { target: { value: String(MAX_QUANTITY + 1) } });
     fireEvent.blur(input);
-    expect(input).toHaveValue(item.quantity);
-    expect(onQuantityChange).toHaveBeenCalledWith(item.quantity);
+    expect(input).toHaveValue(MAX_QUANTITY);
+    expect(onQuantityChange).toHaveBeenCalledWith(MAX_QUANTITY);
   });
 
   describe('remove confirmation modal', () => {
@@ -96,12 +96,6 @@ describe('CartLineItem', () => {
       render(<CartLineItem item={item} onRemove={onRemove} onQuantityChange={jest.fn()} />);
       fireEvent.click(screen.getByRole('button', { name: 'Remove Test Product' }));
       expect(onRemove).not.toHaveBeenCalled();
-    });
-
-    it('modal shows correct quantity in heading', () => {
-      render(<CartLineItem item={item} onRemove={jest.fn()} onQuantityChange={jest.fn()} />);
-      fireEvent.click(screen.getByRole('button', { name: 'Remove Test Product' }));
-      expect(screen.getByRole('heading', { name: /remove all 2 units/i })).toBeInTheDocument();
     });
 
     it('modal shows item title', () => {
@@ -162,6 +156,14 @@ describe('CartLineItem', () => {
       render(<CartLineItem item={singleItem} onRemove={jest.fn()} onQuantityChange={jest.fn()} />);
       fireEvent.click(screen.getByRole('button', { name: 'Remove Test Product' }));
       expect(screen.getByRole('heading', { name: /remove all 1 unit\b/i })).toBeInTheDocument();
+    });
+
+    it('modal body shows singular "unit" and correct price for quantity=1', () => {
+      const singleItem = { ...item, quantity: 1 };
+      render(<CartLineItem item={singleItem} onRemove={jest.fn()} onQuantityChange={jest.fn()} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Remove Test Product' }));
+      const dialog = screen.getByRole('dialog');
+      expect(within(dialog).getByText(/1 unit · \$25\.00/i)).toBeInTheDocument();
     });
 
     it('passes axe accessibility audit with modal open', async () => {

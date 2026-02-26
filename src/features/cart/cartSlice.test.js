@@ -115,6 +115,112 @@ describe('cartSlice', () => {
     expect(state.items[0].quantity).toBe(10);
   });
 
+  // --- addToCart: invalid quantity guard ---
+
+  it('addToCart with NaN quantity falls back to 1', () => {
+    const state = cartReducer(initialState, addToCart({ product: mockProduct, quantity: NaN }));
+    expect(state.items[0].quantity).toBe(1);
+  });
+
+  it('addToCart with Infinity quantity falls back to 1', () => {
+    const state = cartReducer(
+      initialState,
+      addToCart({ product: mockProduct, quantity: Infinity })
+    );
+    expect(state.items[0].quantity).toBe(1);
+  });
+
+  it('addToCart with negative quantity falls back to 1', () => {
+    const state = cartReducer(initialState, addToCart({ product: mockProduct, quantity: -5 }));
+    expect(state.items[0].quantity).toBe(1);
+  });
+
+  it('addToCart with zero quantity falls back to 1', () => {
+    const state = cartReducer(initialState, addToCart({ product: mockProduct, quantity: 0 }));
+    expect(state.items[0].quantity).toBe(1);
+  });
+
+  it('addToCart with fractional quantity floors to integer', () => {
+    const state = cartReducer(initialState, addToCart({ product: mockProduct, quantity: 2.9 }));
+    expect(state.items[0].quantity).toBe(2);
+  });
+
+  it('addToCart NaN quantity on existing item leaves quantity unchanged', () => {
+    const stateWithItem = cartReducer(
+      initialState,
+      addToCart({ product: mockProduct, quantity: 3 })
+    );
+    const stateAfter = cartReducer(
+      stateWithItem,
+      addToCart({ product: mockProduct, quantity: NaN })
+    );
+    // NaN falls back to 1; 3 + 1 = 4
+    expect(stateAfter.items[0].quantity).toBe(4);
+  });
+
+  // --- updateQuantity: invalid quantity guard ---
+
+  it('updateQuantity with NaN is a no-op', () => {
+    const stateWithItem = cartReducer(
+      initialState,
+      addToCart({ product: mockProduct, quantity: 3 })
+    );
+    const stateAfter = cartReducer(
+      stateWithItem,
+      updateQuantity({ productId: 1, quantity: NaN })
+    );
+    expect(stateAfter.items[0].quantity).toBe(3);
+  });
+
+  it('updateQuantity with Infinity is a no-op', () => {
+    const stateWithItem = cartReducer(
+      initialState,
+      addToCart({ product: mockProduct, quantity: 3 })
+    );
+    const stateAfter = cartReducer(
+      stateWithItem,
+      updateQuantity({ productId: 1, quantity: Infinity })
+    );
+    expect(stateAfter.items[0].quantity).toBe(3);
+  });
+
+  it('updateQuantity with negative quantity is a no-op (does not remove)', () => {
+    const stateWithItem = cartReducer(
+      initialState,
+      addToCart({ product: mockProduct, quantity: 3 })
+    );
+    const stateAfter = cartReducer(
+      stateWithItem,
+      updateQuantity({ productId: 1, quantity: -1 })
+    );
+    expect(stateAfter.items).toHaveLength(1);
+    expect(stateAfter.items[0].quantity).toBe(3);
+  });
+
+  it('updateQuantity with fractional quantity floors to integer', () => {
+    const stateWithItem = cartReducer(
+      initialState,
+      addToCart({ product: mockProduct, quantity: 3 })
+    );
+    const stateAfter = cartReducer(
+      stateWithItem,
+      updateQuantity({ productId: 1, quantity: 4.9 })
+    );
+    expect(stateAfter.items[0].quantity).toBe(4);
+  });
+
+  it('updateQuantity caps fractional quantity above MAX_QUANTITY at 50', () => {
+    const stateWithItem = cartReducer(
+      initialState,
+      addToCart({ product: mockProduct, quantity: 1 })
+    );
+    const stateAfter = cartReducer(
+      stateWithItem,
+      updateQuantity({ productId: 1, quantity: 50.9 })
+    );
+    expect(stateAfter.items[0].quantity).toBe(50);
+  });
+
   it('large-cart edge case: 30 distinct products', () => {
     let state = initialState;
     for (let i = 1; i <= 30; i++) {

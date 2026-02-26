@@ -63,6 +63,20 @@ export default function QuantitySelector({
     setDraft(raw); // always update display so backspace/clear is visible
     const n = parseInt(raw, 10);
     if (isNaN(n)) {
+      // Decimal with no integer part (e.g. ".8") — snap immediately
+      // Cart: revert to previous valid quantity (resetTo); add-to-cart form: snap to min
+      if (raw.includes('.')) {
+        const floored = Math.floor(parseFloat(raw));
+        if (Number.isFinite(floored)) {
+          const fallback = resetTo !== undefined ? resetTo : min;
+          const snapped = floored >= min ? Math.min(floored, max) : fallback;
+          setAttempted(null);
+          setDraft(String(snapped));
+          onChange(snapped);
+          onValidityChange?.(true);
+          return;
+        }
+      }
       onValidityChange?.(false); // empty / non-numeric — disable dependent actions
       return;
     }
@@ -72,11 +86,14 @@ export default function QuantitySelector({
     } else {
       setAttempted(null);
       onValidityChange?.(true);
+      setDraft(String(n)); // snap display to integer — rejects decimals/leading zeros
       onChange(n);
     }
   }
 
   const outOfRange = attempted !== null;
+  // Cart over-max: blur will clamp to max; add-to-cart: blur resets to min
+  const overMax = attempted !== null && attempted > max;
   const errorId = inputId + '-error';
 
   function handleBlur(e) {
@@ -84,8 +101,9 @@ export default function QuantitySelector({
       setAttempted(null);
       const n = parseInt(draft, 10);
       if (isNaN(n) || n < min || n > max) {
-        // Cart: revert to the previous valid quantity; add-to-cart form: reset to min
-        const fallback = resetTo !== undefined ? resetTo : min;
+        // Cart over-max: clamp to max; otherwise revert to resetTo or min
+        const fallback =
+          n > max && resetTo !== undefined ? max : resetTo !== undefined ? resetTo : min;
         setDraft(String(fallback));
         onChange(fallback);
       }
@@ -137,7 +155,11 @@ export default function QuantitySelector({
       </div>
       {outOfRange && (
         <div id={errorId} role="alert" aria-live="assertive" className="text-xs text-error">
-          {attempted < min ? `Minimum quantity is ${min}` : `Maximum quantity is ${max}`}
+          {attempted < min
+            ? `Minimum quantity is ${min}`
+            : overMax && resetTo !== undefined
+              ? `Maximum is ${max} - reverting to ${max}`
+              : `Maximum quantity is ${max}`}
         </div>
       )}
     </div>
