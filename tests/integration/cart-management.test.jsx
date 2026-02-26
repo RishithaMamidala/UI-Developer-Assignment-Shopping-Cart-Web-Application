@@ -126,9 +126,11 @@ describe('cart-management integration', () => {
     expect(within(drawer).getByText('Alpha')).toBeInTheDocument();
     expect(within(drawer).getByText('Beta')).toBeInTheDocument();
 
-    // Remove Beta (second item in cart)
-    const removeButtons = within(drawer).getAllByRole('button', { name: /remove/i });
-    fireEvent.click(removeButtons[1]);
+    // Remove Beta (second item in cart) — two-step: open modal then confirm
+    const removeButtons = within(drawer).getAllByRole('button', { name: /remove beta/i });
+    fireEvent.click(removeButtons[0]);
+    const confirmModal = screen.getByRole('dialog', { name: /remove all/i });
+    fireEvent.click(within(confirmModal).getByRole('button', { name: /^remove$/i }));
 
     await waitFor(() => {
       expect(within(drawer).queryByText('Beta')).not.toBeInTheDocument();

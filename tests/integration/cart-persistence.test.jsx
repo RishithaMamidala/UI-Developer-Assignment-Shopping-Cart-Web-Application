@@ -1,4 +1,4 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -125,8 +125,10 @@ describe('cart-persistence integration', () => {
       expect(screen.getByRole('dialog', { name: /shopping cart/i })).toBeInTheDocument();
     });
 
-    // Remove the item
-    fireEvent.click(screen.getByRole('button', { name: /remove/i }));
+    // Remove the item — two-step: open modal then confirm
+    fireEvent.click(screen.getByRole('button', { name: /remove offline item/i }));
+    const confirmModal = screen.getByRole('dialog', { name: /remove all/i });
+    fireEvent.click(within(confirmModal).getByRole('button', { name: /^remove$/i }));
 
     // Cart should be empty
     await waitFor(() => {
