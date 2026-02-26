@@ -5,8 +5,8 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#60a5fa',
-          hover: '#3b82f6',
+          DEFAULT: '#3b82f6',
+          hover: '#1d4ed8',
         },
         surface: {
           DEFAULT: '#ffffff',

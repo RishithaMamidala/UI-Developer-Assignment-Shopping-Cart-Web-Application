@@ -136,6 +136,49 @@ E2E tests cover two flows:
 
 ---
 
+## Test Coverage
+
+> Generated with `npm run test:coverage` — 222 tests across 24 suites (2026-02-25)
+
+### Summary
+
+| Metric | Coverage |
+|---|---|
+| Statements | **97.1 %** |
+| Branches | **89.32 %** |
+| Functions | **96.55 %** |
+| Lines | **99.57 %** |
+
+### Per-file breakdown
+
+| File | Stmts | Branch | Funcs | Lines |
+|---|---|---|---|---|
+| src/app/hooks.js | 100 | 100 | 100 | 100 |
+| src/app/store.js | 100 | 100 | 100 | 100 |
+| src/components/CartDrawer/CartDrawer.jsx | 100 | 80 | 100 | 100 |
+| src/components/CartDrawer/CartLineItem/CartLineItem.jsx | 100 | 100 | 100 | 100 |
+| src/components/CategoryTabs/CategoryTabs.jsx | 100 | 100 | 100 | 100 |
+| src/components/Header/Header.jsx | 100 | 75 | 100 | 100 |
+| src/components/ProductCard/ProductCard.jsx | 96.15 | 90 | 100 | 100 |
+| src/components/ProductDetailModal/ProductDetailModal.jsx | 96.66 | 86.36 | 100 | 100 |
+| src/components/ProductGrid/ProductGrid.jsx | 100 | 100 | 100 | 100 |
+| src/components/ProductSkeleton/ProductSkeleton.jsx | 100 | 100 | 100 | 100 |
+| src/components/SortSelect/SortSelect.jsx | 100 | 100 | 100 | 100 |
+| src/components/ui/Badge/Badge.jsx | 100 | 75 | 100 | 100 |
+| src/components/ui/Button/Button.jsx | 100 | 84.61 | 100 | 100 |
+| src/components/ui/QuantitySelector/QuantitySelector.jsx | 95.45 | 84.84 | 87.5 | 97.61 |
+| src/components/ui/Spinner/Spinner.jsx | 100 | 75 | 100 | 100 |
+| src/components/ui/StarRating/StarRating.jsx | 100 | 100 | 100 | 100 |
+| src/features/cart/cartSelectors.js | 100 | 100 | 100 | 100 |
+| src/features/cart/cartSlice.js | 100 | 100 | 100 | 100 |
+| src/features/products/productsApi.js | 90 | 93.75 | 100 | 100 |
+| src/features/products/productsSlice.js | 100 | 100 | 100 | 100 |
+| src/hooks/useFilteredProducts.js | 100 | 100 | 100 | 100 |
+| src/utils/currency.js | 100 | 100 | 100 | 100 |
+| src/utils/validation.js | 100 | 100 | 100 | 100 |
+
+---
+
 ## Live Deployment URL
 
 [https://ui-developer-assignment-shopping-ca.vercel.app/](https://ui-developer-assignment-shopping-ca.vercel.app/)
